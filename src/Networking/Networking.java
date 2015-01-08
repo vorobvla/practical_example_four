@@ -14,6 +14,7 @@ import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import edu.cvut.vorobvla.bap.BapMessages;
+import sun.security.jca.GetInstance;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -40,12 +41,20 @@ public final class Networking {
     private ServerSocket moderatorServerSocket;
     private Thread serverThread;
     private ModeratorServer modServer;
+    private static Networking instance;
+    
+    public static Networking getInstance(){
+        if (instance == null){
+            instance = new Networking();
+        }
+        return instance;
+    }
 
-    public Networking() {
+    private Networking() {
         this(Constants.DEFAULT_IFCE, Constants.DEFAULT_MODERAOTR_PORT);
     }
 
-    public Networking(String netIntfceName, int port) {
+    private Networking(String netIntfceName, int port) {
         this.netIntfceName = netIntfceName;
         tcpModeratorPort = port;
         udpOutData = new byte[1024];
