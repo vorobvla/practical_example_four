@@ -6,6 +6,9 @@
 package GUI;
 
 import Networking.Networking;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -13,18 +16,12 @@ import javax.swing.JOptionPane;
  * @author Vladimir Vorobyev (vorobvla)
  */
 public class NetworkFrame extends javax.swing.JFrame {
-    Networking networking;
     /**
      * Creates new form NetInterfaceFrame
-     * @param networking
      */
-    public NetworkFrame(Networking networking) {
-        this.networking = networking;
-        initComponents();
-    }
 
-    private NetworkFrame() {
-        this.networking = new Networking();
+
+    public NetworkFrame() {
         initComponents();        
     }
 
@@ -47,7 +44,7 @@ public class NetworkFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        interfaceNameField.setText(networking.getNetIntfceName());
+        interfaceNameField.setText(Networking.getInstance().getNetIntfceName());
         interfaceNameField.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
                 interfaceNameFieldCaretUpdate(evt);
@@ -66,7 +63,7 @@ public class NetworkFrame extends javax.swing.JFrame {
             }
         });
 
-        moderatorPortField.setText(new Integer(networking.getModeratorPort()).toString());
+        moderatorPortField.setText(new Integer(Networking.getInstance().getModeratorPort()).toString());
 
         jLabel2.setText("Port");
 
@@ -99,10 +96,11 @@ public class NetworkFrame extends javax.swing.JFrame {
                             .addComponent(moderatorPortField)))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(IfceErrLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(OkButton, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(IfceErrLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(OkButton, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -129,13 +127,19 @@ public class NetworkFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void OkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OkButtonActionPerformed
-        networking = new Networking(interfaceNameField.getText(), new Integer(moderatorPortField.getText()));
-  /*      JOptionPane.showMessageDialog(this, 
-                "Eggs are not supposed to be green.",
-                "Inane error",
-    JOptionPane.ERROR_MESSAGE);*/
+        Networking.getInstance().setUpByInfceName(interfaceNameField.getText());
+        try {
+            Networking.getInstance().setModeratorPort(Integer.parseInt(moderatorPortField.getText()));
+            /*      JOptionPane.showMessageDialog(this,
+            "Eggs are not supposed to be green.",
+            "Inane error",
+            JOptionPane.ERROR_MESSAGE);*/
 //        PortErrLabel.setText(Constants.IFCE_NAME_ERR(InterfaceNameField.getText()));
 //        PortErrLabel.setVisible(true);
+        } catch (IOException ex) {
+            Logger.getLogger(NetworkFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Networking.getInstance().callPlayers();
     }//GEN-LAST:event_OkButtonActionPerformed
 
     private void interfaceNameFieldCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_interfaceNameFieldCaretUpdate
