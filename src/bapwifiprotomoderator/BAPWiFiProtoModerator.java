@@ -6,8 +6,8 @@
 
 package bapwifiprotomoderator;
 import GUI.MainFrame;
-import GUI.NetworkFrame;
-import GUI.NetworkFrame;
+import GUI.StartPanel;
+import Model.Player;
 import Networking.Networking;
 import java.io.IOException;
 import java.net.SocketException;
@@ -27,11 +27,11 @@ public class BAPWiFiProtoModerator {
      */
     public static void main(String[] args) throws UnknownHostException, SocketException, IOException {
         // TODO code application logic here
-        Networking network = new Networking("wlan0", 1111);
+//        Networking.getInstance().callPlayers();
         MainFrame frame = new MainFrame();
-        NetworkFrame nframe = new NetworkFrame(network);
-        //frame.setVisible(true);
-        nframe.setVisible(true);
+        //NetworkFrame nframe = new NetworkFrame();
+        frame.setVisible(true);
+       // nframe.setVisible(true);
         //
     }
 }

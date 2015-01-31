@@ -4,6 +4,13 @@
  * and open the template in the editor.
  */
 package GUI;
+import Model.Player;
+import Networking.*;
+import java.util.ArrayList;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JList;
+import javax.swing.ListSelectionModel;
 
 /**
  *
@@ -15,9 +22,33 @@ public class StartPanel extends javax.swing.JPanel {
      * Creates new form StartPanel
      */
     public StartPanel() {
-        initComponents();
+        initComponents();       
     }
 
+    public JButton getStartGameButton() {
+        return startGameButton;
+    }
+
+    public JButton getSetupGameButton() {
+        return setupGameButton;
+    }
+
+    public JButton getSetupSystemButton() {
+        return setupSystemButton;
+    }
+
+    public JButton getSetupNetworkButton() {
+        return setupNetworkButton;
+    }
+
+    public JList getPlayersList() {
+        return PlayersList;
+    }
+    
+    
+    
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -35,20 +66,27 @@ public class StartPanel extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         connectionsTextArea = new javax.swing.JTextArea();
         setupGameButton = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        PlayersList = new javax.swing.JList();
 
         setBorder(javax.swing.BorderFactory.createTitledBorder("Start Panel"));
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
-        layout.columnWidths = new int[] {0, 5, 0};
+        layout.columnWidths = new int[] {0, 5, 0, 5, 0};
         layout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0};
         setLayout(layout);
 
         callPlayersButton.setText("Call players");
+        callPlayersButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                callPlayersButtonActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 10;
         gridBagConstraints.ipady = 10;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(callPlayersButton, gridBagConstraints);
 
         setupNetworkButton.setText("Setup Network");
@@ -56,38 +94,51 @@ public class StartPanel extends javax.swing.JPanel {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 10;
         gridBagConstraints.ipady = 10;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(setupNetworkButton, gridBagConstraints);
 
         setupSystemButton.setText("Setup System");
+        setupSystemButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                setupSystemButtonActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 10;
         gridBagConstraints.ipady = 10;
         add(setupSystemButton, gridBagConstraints);
 
         startGameButton.setText("Start game");
+        startGameButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                startGameButtonActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 10;
         gridBagConstraints.ipady = 10;
         add(startGameButton, gridBagConstraints);
 
         connectionsTextArea.setEditable(false);
         connectionsTextArea.setColumns(20);
         connectionsTextArea.setRows(5);
+        connectionsTextArea.setPreferredSize(new java.awt.Dimension(180, 90));
         jScrollPane1.setViewportView(connectionsTextArea);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridheight = 9;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.ipadx = 250;
-        gridBagConstraints.ipady = 70;
+        gridBagConstraints.ipadx = 204;
+        gridBagConstraints.ipady = 199;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -96,18 +147,54 @@ public class StartPanel extends javax.swing.JPanel {
         setupGameButton.setText("Setup Game");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 10;
         gridBagConstraints.ipady = 10;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(setupGameButton, gridBagConstraints);
+
+        jScrollPane2.setPreferredSize(new java.awt.Dimension(60, 252));
+
+        PlayersList.setBorder(javax.swing.BorderFactory.createTitledBorder("Players' overview"));
+        PlayersList.setModel(new javax.swing.AbstractListModel() {
+            public int getSize() { return Player.getAll().size(); }
+            public Object getElementAt(int i) { return Player.getAll().get(i).getIdentity(); }
+
+        });
+        jScrollPane2.setViewportView(PlayersList);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 9;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 100;
+        gridBagConstraints.ipady = 150;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        add(jScrollPane2, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void startGameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startGameButtonActionPerformed
+        this.getParent().dispatchEvent(evt);
+    }//GEN-LAST:event_startGameButtonActionPerformed
+
+    private void callPlayersButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_callPlayersButtonActionPerformed
+        Networking.getInstance().callPlayers();
+    }//GEN-LAST:event_callPlayersButtonActionPerformed
+
+    private void setupSystemButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setupSystemButtonActionPerformed
+        Player.getAll().add(new Player("test", null));
+    }//GEN-LAST:event_setupSystemButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JList PlayersList;
     private javax.swing.JButton callPlayersButton;
     private javax.swing.JTextArea connectionsTextArea;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JButton setupGameButton;
     private javax.swing.JButton setupNetworkButton;
     private javax.swing.JButton setupSystemButton;

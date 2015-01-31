@@ -5,6 +5,21 @@
  */
 package GUI;
 
+import Model.Game;
+import Model.GameException;
+import Model.Player;
+import Networking.Networking;
+import java.awt.CardLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Vladimir Vorobyev (vorobvla)
@@ -15,7 +30,80 @@ public class MainFrame extends javax.swing.JFrame {
      * Creates new form MainJFrame
      */
     public MainFrame() {
+        try {
+            setIconImage(ImageIO.read(getClass().getResource("/resources/Icon.png")));
+        } catch (IOException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("could not find icon resource");
+        };
         initComponents();
+        initComponentsNotGenerated();
+        try {
+            networkPanel.setup(Networking.getInstance().getNetIntfceName(), Networking.getInstance().getModeratorPort(), this);
+        } catch (RuntimeException ex){
+            JOptionPane.showMessageDialog(this,
+                    ex.getMessage() + " Try to change network settings",
+                    "Networking error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        Networking.getInstance().callPlayers();
+        setTitle("Moderator App Prototype");
+        showCard("startTabbedPanel");
+        
+        //setup action sources & listeners
+        startPanel.getSetupGameButton().setEnabled(false);
+        startPanel.getSetupSystemButton().setEnabled(false);
+        startPanel.getSetupNetworkButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                setupNetworkActionPerfomed();
+            }
+        });
+        startPanel.getStartGameButton().addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                startGameButtonActionPerformed();
+            }           
+        });
+        this.addWindowListener(new WindowAdapter() {
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                try {
+                    Networking.getInstance().close(); 
+                } catch (IOException ex) {
+                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                super.windowClosing(e);
+            }          
+        });
+    }
+    
+    private void startGameButtonActionPerformed() {
+        try {
+            /*for (Player p: Player.getAll()){
+            try {
+            Game.getInstance().addPlayer(p);
+            } catch (GameException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            }*/
+            gamePanel.startGame(Player.getAll());
+        } catch (GameException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        showCard("gamePanel");
+    }
+    
+    private void setupNetworkActionPerfomed() {
+        tabbedPane.setSelectedComponent(networkPanel);
+    }
+    
+    
+    public static void showCard(String name){
+        ((CardLayout)mainPanel.getLayout()).show(mainPanel, name);
+        
     }
 
     /**
@@ -27,52 +115,54 @@ public class MainFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        startPanel1 = new GUI.StartPanel();
-        gamePanel1 = new GUI.GamePanel();
+        mainPanel = new javax.swing.JPanel();
+        tabbedPane = new javax.swing.JTabbedPane();
+        startPanel = new GUI.StartPanel();
+        networkPanel = new GUI.NetworkPanel();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jEditorPane1 = new javax.swing.JEditorPane();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextPane1 = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(800, 600));
+        getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.LINE_AXIS));
 
-        javax.swing.GroupLayout startPanel1Layout = new javax.swing.GroupLayout(startPanel1);
-        startPanel1.setLayout(startPanel1Layout);
-        startPanel1Layout.setHorizontalGroup(
-            startPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-        startPanel1Layout.setVerticalGroup(
-            startPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
+        mainPanel.setLayout(new java.awt.CardLayout());
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(157, 157, 157)
-                .addComponent(startPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(1296, Short.MAX_VALUE))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(0, 0, Short.MAX_VALUE)
-                    .addComponent(gamePanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(0, 0, Short.MAX_VALUE)))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(123, 123, 123)
-                .addComponent(startPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(807, Short.MAX_VALUE))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(0, 0, Short.MAX_VALUE)
-                    .addComponent(gamePanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(0, 0, Short.MAX_VALUE)))
-        );
+        tabbedPane.addTab("Start Panel", startPanel);
+        tabbedPane.addTab("Network Settings", networkPanel);
+
+        jEditorPane1.setText("<b>asd</b>");
+        jScrollPane1.setViewportView(jEditorPane1);
+
+        jPanel1.add(jScrollPane1);
+
+        jTextPane1.setText("<b>asd</b>");
+        jScrollPane2.setViewportView(jTextPane1);
+
+        jPanel1.add(jScrollPane2);
+
+        tabbedPane.addTab("tab3", jPanel1);
+
+        /*
+
+        mainPanel.add(tabbedPane, "card3");
+        */
+        mainPanel.add(tabbedPane, "startTabbedPanel");
+
+        getContentPane().add(mainPanel);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    void initComponentsNotGenerated(){
+        gamePanel = new GamePanel();
+        mainPanel.add(gamePanel, "gamePanel");
+        pack();
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -110,7 +200,16 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private GUI.GamePanel gamePanel1;
-    private GUI.StartPanel startPanel1;
+    private javax.swing.JEditorPane jEditorPane1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTextPane jTextPane1;
+    private static javax.swing.JPanel mainPanel;
+    private GUI.NetworkPanel networkPanel;
+    private GUI.StartPanel startPanel;
+    private javax.swing.JTabbedPane tabbedPane;
     // End of variables declaration//GEN-END:variables
+    //not generated vars declaration
+    private GUI.GamePanel gamePanel;
 }

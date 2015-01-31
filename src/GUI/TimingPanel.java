@@ -28,16 +28,19 @@ public class TimingPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         setBorder(javax.swing.BorderFactory.createTitledBorder("Timing"));
+        setMinimumSize(new java.awt.Dimension(50, 50));
+        setPreferredSize(new java.awt.Dimension(50, 50));
+        setVerifyInputWhenFocusTarget(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 194, Short.MAX_VALUE)
+            .addGap(0, 588, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 22, Short.MAX_VALUE)
+            .addGap(0, 80, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 

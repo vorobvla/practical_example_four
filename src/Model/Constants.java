@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package Networking;
+package Model;
 
 /**
  * <p> TODO description of Constants
@@ -12,9 +12,7 @@ package Networking;
  * @created on Sep 7, 2014 at 12:50:59 PM
  */
 
-public abstract class Constants {
-    public static final String DEFAULT_IFCE = "wlan0";
-    public static final int DEFAULT_MODERAOTOR_PORT = 8888;
-    
-    //field delimeter : prefix seporator -
+public class Constants {
+    public static final int DEFAULT_QUESTION_TOUT = 1000;
+    public static final int MAXIMUM_TIMES_TO_APPLY = 1;
 }

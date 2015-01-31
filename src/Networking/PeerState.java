@@ -7,14 +7,11 @@
 package Networking;
 
 /**
- * <p> TODO description of Constants
+ * <p> TODO description of PeerState
  * @author Vladimir Vorobyev (vorobvla)
  * @created on Sep 7, 2014 at 12:50:59 PM
  */
 
-public abstract class Constants {
-    public static final String DEFAULT_IFCE = "wlan0";
-    public static final int DEFAULT_MODERAOTOR_PORT = 8888;
-    
-    //field delimeter : prefix seporator -
+public enum PeerState {
+    CONNECTED, DISCONNECTED
 }

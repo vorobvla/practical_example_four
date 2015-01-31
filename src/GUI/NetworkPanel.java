@@ -6,21 +6,57 @@
 package GUI;
 
 import Networking.Networking;
+import java.awt.Component;
 import java.io.IOException;
+import java.net.BindException;
+import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author Vladimir Vorobyev (vorobvla)
  */
-public class NatworkPanel extends javax.swing.JPanel {
+public class NetworkPanel extends javax.swing.JPanel {
 
     /**
      * Creates new form NatworkPanel
      */
-    public NatworkPanel() {
+    public NetworkPanel() {
         initComponents();
+    }
+    
+    public void setup(String ifce, Integer port, Component from) throws RuntimeException{
+        try {
+            if (ifce != null){
+            
+                Networking.getInstance().setUpByInfceName(ifce);
+                interfaceNameField.setText(ifce);
+            
+        }
+        if (port != null){
+            Networking.getInstance().setModeratorPort(port);
+            moderatorPortField.setText(port.toString());
+        }
+        } catch (RuntimeException ex) {
+            switch (ex.getMessage()){
+                case "UDP socket failure" :
+                    JOptionPane.showMessageDialog(from,
+                    "Most likely port needed for broadcast is occupied."
+                            + "Try to close any programs that can use network and relaunch the appliaction",
+                    "Networking failure (UDP socket failure)",
+                    JOptionPane.ERROR_MESSAGE);
+                    break;
+                case "Moderator socket failure" :
+                    JOptionPane.showMessageDialog(from,
+                    "Most likely moderator's port is occupied. Try to chnge the port in \"Network settings\"",
+                    "Networking failure (TCP server socket failure)",
+                    JOptionPane.ERROR_MESSAGE);
+                    break;
+            }
+        } 
+        
     }
 
     /**
@@ -61,7 +97,7 @@ public class NatworkPanel extends javax.swing.JPanel {
         gridBagConstraints.ipadx = 150;
         add(jLabel2, gridBagConstraints);
 
-        interfaceNameField.setText(Networking.getInstance().getNetIntfceName());
+        interfaceNameField.setText("");
         interfaceNameField.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
                 interfaceNameFieldCaretUpdate(evt);
@@ -83,7 +119,7 @@ public class NatworkPanel extends javax.swing.JPanel {
         gridBagConstraints.ipadx = 10;
         add(jLabel1, gridBagConstraints);
 
-        moderatorPortField.setText(new Integer(Networking.getInstance().getModeratorPort()).toString());
+        moderatorPortField.setText("");
         moderatorPortField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 moderatorPortFieldActionPerformed(evt);
@@ -126,19 +162,27 @@ public class NatworkPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_interfaceNameFieldCaretUpdate
 
     private void OkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OkButtonActionPerformed
-        Networking.getInstance().setUpByInfceName(interfaceNameField.getText());
-        try {
-            Networking.getInstance().setModeratorPort(Integer.parseInt(moderatorPortField.getText()));
-            /*      JOptionPane.showMessageDialog(this,
-                "Eggs are not supposed to be green.",
-                "Inane error",
-                JOptionPane.ERROR_MESSAGE);*/
-            //        PortErrLabel.setText(Constants.IFCE_NAME_ERR(InterfaceNameField.getText()));
-            //        PortErrLabel.setVisible(true);
-        } catch (IOException ex) {
-            Logger.getLogger(NetworkFrame.class.getName()).log(Level.SEVERE, null, ex);
+        //TODO: complete input control
+        if (!Networking.getInstance().getNetIntfceName().matches(interfaceNameField.getText())){
+            //TODO control input
+            //Networking.getInstance().setUpByInfceName(interfaceNameField.getText());
         }
-        Networking.getInstance().callPlayers();
+        
+        if (Networking.getInstance().getModeratorPort() != Integer.parseInt(moderatorPortField.getText())){
+            try {
+                Networking.getInstance().setModeratorPort(Integer.parseInt(moderatorPortField.getText()));
+                /*      JOptionPane.showMessageDialog(this,
+                    "Eggs are not supposed to be green.",
+                    "Inane error",
+                    JOptionPane.ERROR_MESSAGE);*/
+                //        PortErrLabel.setText(Constants.IFCE_NAME_ERR(InterfaceNameField.getText()));
+                //        PortErrLabel.setVisible(true);
+            } catch (RuntimeException ex) {
+                Logger.getLogger(NetworkPanel.class.getName()).log(Level.SEVERE, null, ex);
+                System.err.println("Port " + Networking.getInstance().getModeratorPort() + "occupied");
+            }         
+       }
+        //Networking.getInstance().callPlayers();        
     }//GEN-LAST:event_OkButtonActionPerformed
 
     private void moderatorPortFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_moderatorPortFieldActionPerformed

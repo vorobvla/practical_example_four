@@ -5,6 +5,18 @@
  */
 package GUI;
 
+import Model.Game;
+import Model.GameException;
+import Model.Player;
+import edu.cvut.vorobvla.bap.GameStateEnum;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JTextArea;
+
 /**
  *
  * @author Vladimir Vorobyev (vorobvla)
@@ -15,9 +27,122 @@ public class ControlPanel extends javax.swing.JPanel {
      * Creates new form ControlPanel
      */
     public ControlPanel() {
-        initComponents();
+        initComponents(); 
+        Game.getInstance().setLog(new JTextOutputStream(logTextArea));
+        acceptButton.setEnabled(false);
+        denyButton.setEnabled(false);
+        
+        proceedButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+               proceedButtonActionPerformed();
+            }        
+        });
+        acceptButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+               acceptButtonActionPerformed();
+            }        
+        });
+        
+        denyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+               denyButtonActionPerformed();
+            }        
+        });
+    }
+    
+    private void acceptButtonActionPerformed() {
+        try {
+            Game.acceptAnswer();
+        } catch (GameException ex) {
+            Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void denyButtonActionPerformed() {
+        try {
+            Game.denyAnswer();
+        } catch (GameException ex) {
+            Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void proceedButtonActionPerformed() {
+        try {
+            Game.proceed();
+        } catch (GameException ex) {
+            Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+/*    
+    public JTextArea getLogTextArea() {
+        return LogTextArea;
     }
 
+    public JButton getAcceptButton() {
+        return acceptButton;
+    }
+
+    public JButton getDenyButton() {
+        return denyButton;
+    }
+
+    public JButton getStartButton() {
+        return proceedButton;
+    }*/
+
+    public void setAnsweringPlayer() {
+        try {
+            answeringPlayerLabel.setText("Player " + Game.getAnsweringPlayer().getIdentity()       
+                    + "answers");
+            acceptButton.setText("Accept " + Game.getAnsweringPlayer().getIdentity() + "'s answer");
+            denyButton.setText("Deny " + Game.getAnsweringPlayer().getIdentity() + "'s answer");
+        } catch (GameException ex) {
+            answeringPlayerLabel.setText("");
+            acceptButton.setText("Accept answer");
+            denyButton.setText("Deny answer");
+        }
+    }
+    
+    public void setGameTip(String text){
+        tipLabel.setText(text);
+    }
+    
+    public void enableAnswerProcessing(boolean opt){
+        acceptButton.setEnabled(opt);
+        denyButton.setEnabled(opt);
+    }
+    
+    public void update(GameStateEnum state){
+        switch(state){
+            case START:
+                break;
+            case COOSING_QUESTION:
+                setAnsweringPlayer();
+                enableAnswerProcessing(false);
+                break;
+            case READING_QUESTION:
+                break;
+            case AWAINTING_ANSWER:
+                setAnsweringPlayer();
+                enableAnswerProcessing(false);
+                break;
+            case ANSWER:
+                setAnsweringPlayer();
+                break;
+            case PROCESSING_ANSWER:
+                enableAnswerProcessing(true);
+                break;
+            case FINISH:
+                break;
+                    
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -29,78 +154,139 @@ public class ControlPanel extends javax.swing.JPanel {
         java.awt.GridBagConstraints gridBagConstraints;
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        LogTextArea = new javax.swing.JTextArea();
-        StartButton = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        logTextArea = new javax.swing.JTextArea();
+        gameCtrl = new javax.swing.JPanel();
+        finishBtn = new javax.swing.JButton();
+        pauseBtn = new javax.swing.JButton();
+        proceedButton = new javax.swing.JButton();
+        answerCtrl = new javax.swing.JPanel();
+        answeringPlayerLabel = new javax.swing.JLabel();
+        acceptButton = new javax.swing.JButton();
+        denyButton = new javax.swing.JButton();
+        tipLabel = new javax.swing.JLabel();
 
         setBorder(javax.swing.BorderFactory.createTitledBorder("Controls"));
-        java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
-        layout.columnWidths = new int[] {0, 6, 0, 6, 0, 6, 0};
-        layout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0};
-        setLayout(layout);
+        setMinimumSize(new java.awt.Dimension(300, 200));
+        setPreferredSize(new java.awt.Dimension(300, 200));
+        setLayout(new java.awt.GridBagLayout());
 
-        LogTextArea.setColumns(20);
-        LogTextArea.setRows(5);
-        jScrollPane1.setViewportView(LogTextArea);
+        jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder("Game Log"));
+
+        logTextArea.setEditable(false);
+        logTextArea.setColumns(20);
+        logTextArea.setRows(5);
+        jScrollPane1.setViewportView(logTextArea);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 7;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.ipadx = 356;
-        gridBagConstraints.ipady = 113;
+        gridBagConstraints.ipadx = 493;
+        gridBagConstraints.ipady = 172;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         add(jScrollPane1, gridBagConstraints);
 
-        StartButton.setText("Start");
-        StartButton.addActionListener(new java.awt.event.ActionListener() {
+        gameCtrl.setBorder(javax.swing.BorderFactory.createTitledBorder("Game"));
+        gameCtrl.setMinimumSize(new java.awt.Dimension(125, 80));
+        gameCtrl.setPreferredSize(new java.awt.Dimension(125, 80));
+        gameCtrl.setLayout(new java.awt.GridBagLayout());
+
+        finishBtn.setText("Finish");
+        finishBtn.setMaximumSize(new java.awt.Dimension(54, 30));
+        finishBtn.setMinimumSize(new java.awt.Dimension(54, 30));
+        finishBtn.setPreferredSize(new java.awt.Dimension(54, 30));
+        finishBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                StartButtonActionPerformed(evt);
+                finishBtnActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gameCtrl.add(finishBtn, gridBagConstraints);
+
+        pauseBtn.setText("Pause");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gameCtrl.add(pauseBtn, gridBagConstraints);
+
+        proceedButton.setText("Proceed");
+        proceedButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                proceedButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.gridheight = 5;
-        gridBagConstraints.ipadx = 34;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gameCtrl.add(proceedButton, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.ipadx = 99;
         gridBagConstraints.ipady = 36;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        add(StartButton, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        add(gameCtrl, gridBagConstraints);
 
-        jButton1.setBackground(new java.awt.Color(177, 243, 207));
-        jButton1.setText("Accept answer");
+        answerCtrl.setBorder(javax.swing.BorderFactory.createTitledBorder("Answer"));
+        answerCtrl.setToolTipText("");
+        answerCtrl.setMinimumSize(new java.awt.Dimension(130, 116));
+        answerCtrl.setPreferredSize(new java.awt.Dimension(130, 100));
+        answerCtrl.setLayout(new java.awt.GridLayout(3, 1));
+        answerCtrl.add(answeringPlayerLabel);
+
+        acceptButton.setBackground(new java.awt.Color(177, 243, 207));
+        acceptButton.setText("Accept answer");
+        answerCtrl.add(acceptButton);
+
+        denyButton.setBackground(new java.awt.Color(255, 135, 107));
+        denyButton.setText("Deny answer");
+        answerCtrl.add(denyButton);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.ipadx = 170;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.ipadx = 207;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        add(jButton1, gridBagConstraints);
+        add(answerCtrl, gridBagConstraints);
 
-        jButton2.setBackground(new java.awt.Color(255, 135, 107));
-        jButton2.setText("Deny answer");
+        tipLabel.setText("Press \"Proceed\" button");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.ipadx = 183;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        add(jButton2, gridBagConstraints);
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        add(tipLabel, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void StartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StartButtonActionPerformed
+    private void proceedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_proceedButtonActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_StartButtonActionPerformed
+    }//GEN-LAST:event_proceedButtonActionPerformed
+
+    private void finishBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finishBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_finishBtnActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextArea LogTextArea;
-    private javax.swing.JButton StartButton;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton acceptButton;
+    private javax.swing.JPanel answerCtrl;
+    private javax.swing.JLabel answeringPlayerLabel;
+    private javax.swing.JButton denyButton;
+    private javax.swing.JButton finishBtn;
+    private javax.swing.JPanel gameCtrl;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea logTextArea;
+    private javax.swing.JButton pauseBtn;
+    private javax.swing.JButton proceedButton;
+    private javax.swing.JLabel tipLabel;
     // End of variables declaration//GEN-END:variables
 }

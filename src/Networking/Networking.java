@@ -14,6 +14,10 @@ import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import edu.cvut.vorobvla.bap.BapMessages;
+import edu.cvut.vorobvla.bap.BapPorts;
+import java.io.Closeable;
+import javax.swing.ListModel;
+import javax.swing.text.Document;
 import sun.security.jca.GetInstance;
 
 /*
@@ -29,7 +33,7 @@ import sun.security.jca.GetInstance;
  * @created on Sep 7, 2014 at 12:50:59 PM
  */
 
-public final class Networking {
+public final class Networking implements Closeable{
     private String netIntfceName;
     private NetworkInterface netIntfce;
     private InetAddress moderatorAddr;
@@ -42,6 +46,7 @@ public final class Networking {
     private Thread serverThread;
     private ModeratorServer modServer;
     private static Networking instance;
+    //private static ListModel listModel;
     
     public static Networking getInstance(){
         if (instance == null){
@@ -50,77 +55,91 @@ public final class Networking {
         return instance;
     }
 
-    private Networking() {
-        this(Constants.DEFAULT_IFCE, Constants.DEFAULT_MODERAOTR_PORT);
-    }
 
-    private Networking(String netIntfceName, int port) {
-        this.netIntfceName = netIntfceName;
-        tcpModeratorPort = port;
+    private Networking() {
+        this.netIntfceName = Constants.DEFAULT_IFCE;
+        tcpModeratorPort = Constants.DEFAULT_MODERAOTOR_PORT;
         udpOutData = new byte[1024];
+        
         try {
             UDPSocket = new DatagramSocket();
-            moderatorServerSocket = new ServerSocket(port);
+            //moderatorServerSocket = new ServerSocket(tcpModeratorPort);
         } catch (SocketException ex) {
             Logger.getLogger(Networking.class.getName()).log(Level.SEVERE, null, ex);
             System.err.println("exception while creating UDP socket");
+        }
+        
+        /*setUpByInfceName(netIntfceName); 
+        try {
+           setModeratorPort(tcpModeratorPort);
+            //callPlayers();
+            /*
+            modServer = new ModeratorServer(moderatorServerSocket);
+            serverThread = new Thread(modServer);
+            serverThread.start();
+            //get nessesary information about the network from Network Interface
+            
+            
+            //broadcast initializing message with port lissened by server socket inside the network
+            callPlayers();*
         } catch (IOException ex) {
             Logger.getLogger(Networking.class.getName()).log(Level.SEVERE, null, ex);
-            System.err.println("exception while creating TCP server socket");
-        }
-        modServer = new ModeratorServer(moderatorServerSocket);
-        serverThread = new Thread(modServer);
-        serverThread.start();
-        //get nessesary information about the network from Network Interface
-        setUpByInfceName(netIntfceName); 
-        
-        
-        //broadcast initializing message with port lissened by server socket inside the network
-        callPlayers();
+            throw new RuntimeException("Can not use port " + tcpModeratorPort + ".h");
+        }*/
         
     }
     
-    public void setUpDefault(){
+    public void setUpDefault() throws IOException{
         setUpByInfceName(Constants.DEFAULT_IFCE);
-        setModeratorPort(Constants.DEFAULT_MODERAOTR_PORT);
+        setModeratorPort(Constants.DEFAULT_MODERAOTOR_PORT);
     }
     
-    public void setUpByInfceName(String netIntfceName){
-        NetworkInterface netIntfce;
+    public void setUpByInfceName(String netIntfceName) throws RuntimeException{
         try {
             netIntfce = NetworkInterface.getByName(netIntfceName);
-        for (InterfaceAddress interfaceAddress : netIntfce.getInterfaceAddresses()) {
-            moderatorAddr = interfaceAddress.getAddress();
-            broadcastAddr = interfaceAddress.getBroadcast();
-            if (broadcastAddr != null){
-                break;
-            }          
-        }
+            for (InterfaceAddress interfaceAddress : netIntfce.getInterfaceAddresses()) {
+                moderatorAddr = interfaceAddress.getAddress();
+                broadcastAddr = interfaceAddress.getBroadcast();
+                if (broadcastAddr != null){
+                    break;          
+                }
+            }
         } catch (SocketException ex) {
-            Logger.getLogger(Networking.class.getName()).log(Level.SEVERE, null, ex);
-            System.err.println("excepton while setting network on interface " + netIntfceName);
+            throw new RuntimeException("UDP socket failure", ex);
         }
     }
 
-    public void setModeratorPort(int tcpModeratorPort) {
-        this.tcpModeratorPort = tcpModeratorPort;
+    public void setModeratorPort(int tcpModeratorPort) throws RuntimeException {
+        try {
+            this.tcpModeratorPort = tcpModeratorPort;
+            moderatorServerSocket = new ServerSocket(tcpModeratorPort);
+            moderatorServerSocket.setReuseAddress(false);
+            modServer = new ModeratorServer(moderatorServerSocket);
+            //run server
+            serverThread = new Thread(modServer);
+            serverThread.start();
+        } catch (IOException ex) {
+            throw new RuntimeException("Moderator socket failure", ex);
+        }
     }
     
     private void sendBroadcastUDP(String msg){
         udpOutData = msg.getBytes();
-        DatagramPacket sendPacket = 
-                new DatagramPacket(udpOutData, udpOutData.length, broadcastAddr, Constants.PEER_UDP_PORT);
-        try {
-            UDPSocket.send(sendPacket);
-        } catch (IOException ex) {
-            Logger.getLogger(Networking.class.getName()).log(Level.SEVERE, null, ex);
-            System.err.println("exception while broadcasting UDP");
+        for (int port = BapPorts.PLAYER_PORT; port < BapPorts.PLAYER_PORT + 
+                BapPorts.PLAYER_PORT_RANGE; port++) {
+            DatagramPacket sendPacket = 
+                    new DatagramPacket(udpOutData, udpOutData.length, broadcastAddr, port);
+            try {
+                UDPSocket.send(sendPacket);
+            } catch (IOException ex) {
+                Logger.getLogger(Networking.class.getName()).log(Level.SEVERE, null, ex);
+                System.err.println("exception while broadcasting UDP");
+            }
         }
-        
     }
     
     public void callPlayers(){
-        sendBroadcastUDP(BapMessages.MSG_CALL_FOR_PLAYERS + ":PORT-" + tcpModeratorPort);   
+        sendBroadcastUDP(BapMessages.MSG_CALL_FOR_PLAYERS + BapMessages.FIELD_DELIM + tcpModeratorPort);   
     }
 
     public String getNetIntfceName() {
@@ -129,6 +148,13 @@ public final class Networking {
 
     public int getModeratorPort() {
         return tcpModeratorPort;
+    }
+
+    @Override
+    public void close() throws IOException {
+        //todo kill all peers
+//        moderatorServerSocket.close();
+        UDPSocket.close();
     }
 
     

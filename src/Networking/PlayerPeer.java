@@ -6,6 +6,7 @@
 
 package Networking;
 
+import Model.Player;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,27 +24,34 @@ import edu.cvut.vorobvla.bap.BapMessages;
  */
 
 public class PlayerPeer implements Runnable{
-    private String identity;
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
     private String msg;
+    private Player player;
+    private PeerState state;
 
     public PlayerPeer(Socket socket) {
         try {
             //fill from socket
+            this.socket = socket;
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
             msg = in.readLine();
             System.out.println("GOT MSG " + msg);
-            if (!msg.split(":")[0].matches(BapMessages.MSG_INIT_CONNECTION.split(":")[0])){
-                throw new IOException("no init msg from serwer while expected");
+            if (!msg.split(BapMessages.FIELD_DELIM)[0]
+                    .matches(BapMessages.MSG_INIT_CONNECTION.split(BapMessages.FIELD_DELIM)[0])){
+                state = PeerState.DISCONNECTED;
+                throw new IOException("no init msg from player while expected");
             }
-            identity = msg.split(":")[1].split("-")[1];
+            String identity = msg.split(BapMessages.FIELD_DELIM)[1];
             System.out.println("Player " + identity + " have been connected");
+            state = PeerState.CONNECTED;
+            player = new Player(identity, this);
             out.println(BapMessages.MSG_CONNECTION_EST);
         } catch (IOException ex) {
             Logger.getLogger(PlayerPeer.class.getName()).log(Level.SEVERE, null, ex);
+            state = PeerState.DISCONNECTED;
             System.err.println("exception in peer constructor");
         }
         //this.identity = identity;
@@ -52,7 +60,25 @@ public class PlayerPeer implements Runnable{
 
     @Override
     public void run() {
-        System.out.println("Peer " + identity + " performs routine");
+        
+        System.out.println("Peer " + player.getIdentity() + " performs routine");
+        while (true){
+            try {
+                msg = in.readLine();
+                switch(msg){
+                    case BapMessages.MSG_ANSWER_APPLYING : 
+                        player.applyForAnswer();
+                        break;
+                    case "null" :
+                        state = PeerState.DISCONNECTED;
+                }
+                    
+                System.out.println("got msg: '" + msg +  "'" + " from "+ player.getIdentity() + " at " + System.currentTimeMillis());
+            } catch (IOException ex) {
+                Logger.getLogger(PlayerPeer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
+    
     
 }

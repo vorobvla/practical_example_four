@@ -13,22 +13,22 @@ package GUI;
  */
 
 public abstract class Constants {
-    public static String BTN_OK = "Ok";
+    public static final String BTN_OK = "Ok";
     
     
     //--- GAME PANEL --
-    public static String LAB_QUESTION_CONTENT = "QUESTION";    
+    public static final String LAB_QUESTION_CONTENT = "QUESTION";    
     
     
     //--- NETWORK SETUP ---
     
-    public static String LAB_NETWORK_INTERFACE = "Interface";
-    public static String LAB_MODERATOR_PORT = "Port";
+    public static final String LAB_NETWORK_INTERFACE = "Interface";
+    public static final String LAB_MODERATOR_PORT = "Port";
     
     
     
     
-    public static String ERR_IFCE_NAME(String s){   
+    public static final String ERR_IFCE_NAME(String s){   
         return "can not intarface with name \"" + s + "\"";
     }
 }
