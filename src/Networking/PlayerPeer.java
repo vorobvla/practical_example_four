@@ -6,7 +6,10 @@
 
 package Networking;
 
+import Model.Game;
+import Model.GameException;
 import Model.Player;
+import edu.cvut.vorobvla.bap.BapJSONKeys;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +19,11 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import edu.cvut.vorobvla.bap.BapMessages;
+import edu.cvut.vorobvla.bap.PlayerStateEnum;
+import java.io.Closeable;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 
 /**
  * <p> TODO description of Player
@@ -23,7 +31,7 @@ import edu.cvut.vorobvla.bap.BapMessages;
  * @created on Sep 7, 2014 at 12:50:59 PM
  */
 
-public class PlayerPeer implements Runnable{
+public class PlayerPeer implements Runnable, Closeable{
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
@@ -49,6 +57,7 @@ public class PlayerPeer implements Runnable{
             state = PeerState.CONNECTED;
             player = new Player(identity, this);
             out.println(BapMessages.MSG_CONNECTION_EST);
+            player.setOnline(true);
         } catch (IOException ex) {
             Logger.getLogger(PlayerPeer.class.getName()).log(Level.SEVERE, null, ex);
             state = PeerState.DISCONNECTED;
@@ -57,6 +66,10 @@ public class PlayerPeer implements Runnable{
         //this.identity = identity;
         
     }
+    
+  /*  public  void terminateConnection(){
+        out.println(BapMessages.MSG_CONNECTION_TERM);
+    }*/
 
     @Override
     public void run() {
@@ -78,6 +91,26 @@ public class PlayerPeer implements Runnable{
                 Logger.getLogger(PlayerPeer.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+  
+    
+    public void sendMsg(String msg){
+        //sending JSONObject
+        /*
+        JSONObject obj = Game.getInfoJSON();
+        if ((msg.matches(BapMessages.JSON_MSG_ANSWER_ACC)) || 
+                (msg.matches(BapMessages.JSON_MSG_ANSWER_ACC))){
+            obj.put(BapJSONKeys.KEY_MSG, msg);
+        } else {
+            obj.put(BapJSONKeys.KEY_MSG, BapMessages.JSON_MSG_GAME_NULL);
+        }        */
+        out.println(msg);
+    }
+
+    @Override
+    public void close() throws IOException {
+        out.println(BapMessages.MSG_CONNECTION_TERM);
+        player.setOnline(false);
     }
     
     

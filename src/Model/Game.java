@@ -6,18 +6,16 @@
 
 package Model;
 
+import edu.cvut.vorobvla.bap.BapJSONKeys;
 import edu.cvut.vorobvla.bap.PlayerStateEnum;
 import edu.cvut.vorobvla.bap.GameStateEnum;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.simple.JSONObject;
 
 /**
  * <p> TODO description of Game
@@ -26,6 +24,7 @@ import java.util.logging.Logger;
  */
 
 public class Game {
+
   //  private String name;
     private long timestampStart;
     //add tstamps for touts
@@ -39,6 +38,8 @@ public class Game {
     private static Player answeringPlayer;
     private static Game instance;
     private static int maximumAppliing;
+    private static int playersNotAnswered;
+    boolean paused;
   //  private Collection players;
 
     public static Game getInstance() {
@@ -55,9 +56,11 @@ public class Game {
         answeringPlayer = null;
         questionTimeout = Constants.DEFAULT_QUESTION_TOUT;
         maximumAppliing = Constants.MAXIMUM_TIMES_TO_APPLY;
+        paused = false;
     }
             
     private void startStateRoutine(){
+        log("[DB] startStateRoutine @ " + System.currentTimeMillis());
         gameTimestamp = System.currentTimeMillis();
         log("game started at " + (new Date(gameTimestamp).toString()));
         String playing = "Players:  ";
@@ -69,24 +72,29 @@ public class Game {
     }
     
     private void choosingStateRoutine(){
+        log("[DB] choosingStateRoutine @ " + System.currentTimeMillis());
         
         //choosing question to be implemented here
         setAllPlayersState(PlayerStateEnum.FALSEACTIVE);
         resetAllPlayersAppliedTimes();
         log("Question is chosen");
         state = GameStateEnum.READING_QUESTION;
+        playersNotAnswered = players.size();
     }
     
     private void readingStateRoutine(){
+        log("[DB] readingStateRoutine @ " + System.currentTimeMillis());
+        //display question
         state = GameStateEnum.AWAINTING_ANSWER;
         setAllPlayersState(PlayerStateEnum.ACTIVE); 
         for(Player player: players){
-            log("+++++ " + player.getIdentity() + " is " + player.getState().name());
+            log("[DB] " + player.getIdentity() + " is " + player.getState().name());
         }
         log("Question is read");
     }
     
     private void awaitingStateRoutine() throws InterruptedException{
+        log("[DB] awaitingStateRoutine @ " + System.currentTimeMillis());
         log("Avaiting for answer");
         questionTimestamp = System.currentTimeMillis();
         //active waiting for answer
@@ -95,18 +103,20 @@ public class Game {
             while ((state == GameStateEnum.AWAINTING_ANSWER) && (time > 0)){
                 wait(time);
                 time -= (System.currentTimeMillis() - questionTimestamp);
-                log("DEBUG: Threds work");
+                log("[DB] Threds work");
             }
         state = GameStateEnum.COOSING_QUESTION;
-        }
-        
+        }        
         //tout
         //state = GameStateEnum.COOSING_QUESTION;
     }
+    
     private void answerStateRoutine(){
+        log("[DB] answerStateRoutine @ " + System.currentTimeMillis());
         //answer timeout
-        state = GameStateEnum.PROCESSING_ANSWER;
         try {
+            Thread.sleep(10000);
+            state = GameStateEnum.PROCESSING_ANSWER;
             proceed();
         } catch (GameException ex) {
             Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
@@ -114,9 +124,13 @@ public class Game {
             Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
     private void processingStateRoutine(){
+        log("[DB] processingStateRoutine @ " + System.currentTimeMillis());
     }
+    
     private void finishStateRoutine(){
+        log("[DB] finishStateRoutine @ " + System.currentTimeMillis());
     }
     
     public static void proceed() throws GameException, InterruptedException{
@@ -145,8 +159,14 @@ public class Game {
         }
     }
     
+    //this method can is called only by active players
     public static synchronized void recieveApplication(Player from){
+        log("[DB] recieveApplication @ " + System.currentTimeMillis());
         try {
+            if (from.getState() != PlayerStateEnum.ACTIVE){
+                throw new GameException( "Not active player calling recieveApplication()");
+            }
+            playersNotAnswered--;
             processTimestamp = System.currentTimeMillis();
             state = GameStateEnum.ANSWER;
             answeringPlayer = from;
@@ -162,6 +182,7 @@ public class Game {
     }
     
     public static void acceptAnswer() throws GameException{
+        log("[DB] acceptAnswer @ " + System.currentTimeMillis());
         if (state == GameStateEnum.PROCESSING_ANSWER) {
             state = GameStateEnum.COOSING_QUESTION;
             synchronized(getInstance()){
@@ -175,10 +196,14 @@ public class Game {
     }
     
     public static void denyAnswer() throws GameException{
+        log("[DB] denyAnswer @ " + System.currentTimeMillis());
         if (state == GameStateEnum.PROCESSING_ANSWER) {
             //if all aswered state = GameStateEnum.COOSING_QUESTION; else
-            
-            state = GameStateEnum.AWAINTING_ANSWER;
+            if (playersNotAnswered == 0){
+                state = GameStateEnum.COOSING_QUESTION;
+            } else {
+                state = GameStateEnum.AWAINTING_ANSWER;
+            }
             answeringPlayer.chageScoreBy(-10);
             getInstance().setAcativePlayers();
             synchronized(getInstance()){
@@ -190,14 +215,6 @@ public class Game {
             throw new GameException("Illegal game state");
         }              
     }
-
-  /*  public void setPlayers(HashSet<Player> players) {
-        //this.players = players;
-        for (Player p : players) {
-            p.reset();
-            this.players.add(p);
-        }
-    }*/
 
     public HashSet<Player> getPlayers() {
         return players;
@@ -285,19 +302,51 @@ public class Game {
                 s = "answer is being awaiting";
                 break;
             case ANSWER : 
-                s = "player " + answeringPlayer + " answers";
+                s = "player " + answeringPlayer.getIdentity() + " answers";
                 break;
             case PROCESSING_ANSWER : 
-                s = answeringPlayer + "'s answer is being processed";
+                s = answeringPlayer.getIdentity() + "'s answer is being processed";
                 break;
             case FINISH : 
+          //  gameInfoPanel.getScoreTable().getModel().;
                 s = "game is finished";
                 break;
             case FINISHED : 
                 s = "game has been finished";
                 break;                
         }
+        if (paused){
+            s += " (game paused)";
+        }
         return s;
     }
+    public static void finishGame() {
+        state = GameStateEnum.FINISH;
+        for (Player player : getInstance().getPlayers()){
+               // player.getPeer().sendMsg(BapMessages.MSG_GAME_FIN);
+                player.saveScore();
+        }       
+        state = GameStateEnum.FINISHED;
+    }   
+    
+    //add info about accept/deny answer when sending to peers!
+    public static JSONObject getInfoJSON(){
+        JSONObject output = new JSONObject();
+        output.put(BapJSONKeys.KEY_STATE, Game.getState());
+        if (state == GameStateEnum.ANSWER){
+            output.put(BapJSONKeys.KEY_ANSWERING_PLAYER, answeringPlayer.getIdentity());
+        } else {
+            output.put(BapJSONKeys.KEY_ANSWERING_PLAYER, "");
+        }
+        JSONObject tab = new JSONObject();
+        for (Player player : Game.getInstance().getPlayers()) {
+            tab.put(BapJSONKeys.KEY_PLAYER_ID, player.getIdentity());
+            tab.put(BapJSONKeys.KEY_PLAYER_SCORE, player.getScore());
+        }
+        output.put(BapJSONKeys.KEY_PLAYERS_TAB, tab);
+        
+        return output;
+    }
+    
     
 }

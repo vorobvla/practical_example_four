@@ -50,69 +50,10 @@ public class GamePanel extends javax.swing.JPanel {
     public void startGame(Collection<Player> players) throws GameException{
         for (Player p : players) {
             Game.getInstance().addPlayer(p);
-          //  gameInfoPanel.getScoreTable().getModel().;
+            
         }
-        gameInfoPanel.setupTable();
-        /*
-        gameInfoPanel.getScoreTable().setModel(new AbstractTableModel() {
-            String [] colTitles = {"Player", "Score"};
-
-            Object [] players = Game.getInstance().getPlayers().toArray();
-                               
-            @Override
-            public int getRowCount() {
-                return players.length;
-            }
-
-            @Override
-            public int getColumnCount() {
-                return 2;
-            }
-
-            @Override
-            public String getColumnName(int column) {
-                return colTitles[column];
-            }
-
-            @Override
-            public Object getValueAt(int i, int i1) {  
-                Object [] players = Game.getInstance().getPlayers().toArray();
-                if (i1 == 0) {
-                    return ((Player)players[i]).getIdentity();
-                } else {
-                    return ((Player)players[i]).getScore();
-                }      
-            }             
-        });
-        gameInfoPanel.getScoreTable().setEnabled(false);*/
-        
+        gameInfoPanel.setupTable();       
     }
- /*   
-    private void startButtonActionPerformed() {
-        try {
-            Game.proceed();
-        } catch (GameException ex) {
-            Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
-        }
-//        gameInfoPanel.setStateInfoLabelText(Game.getState().name());
-    }*/
- /*   
-    private void acceptButtonActionPerformed() {
-        try {
-            Game.acceptAnswer();
-        } catch (GameException ex) {
-            Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    private void denyButtonActionPerformed() {
-        try {
-            Game.denyAnswer();
-        } catch (GameException ex) {
-            Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }*/
     
     private void update(){
         GameStateEnum state = Game.getState();

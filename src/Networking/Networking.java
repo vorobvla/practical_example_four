@@ -2,6 +2,7 @@ package Networking;
 
 
 
+import Model.Game;
 import edu.cvut.vorobvla.bap.BapMessages;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -15,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import edu.cvut.vorobvla.bap.BapMessages;
 import edu.cvut.vorobvla.bap.BapPorts;
+import edu.cvut.vorobvla.bap.GameStateEnum;
 import java.io.Closeable;
 import javax.swing.ListModel;
 import javax.swing.text.Document;
@@ -69,24 +71,6 @@ public final class Networking implements Closeable{
             System.err.println("exception while creating UDP socket");
         }
         
-        /*setUpByInfceName(netIntfceName); 
-        try {
-           setModeratorPort(tcpModeratorPort);
-            //callPlayers();
-            /*
-            modServer = new ModeratorServer(moderatorServerSocket);
-            serverThread = new Thread(modServer);
-            serverThread.start();
-            //get nessesary information about the network from Network Interface
-            
-            
-            //broadcast initializing message with port lissened by server socket inside the network
-            callPlayers();*
-        } catch (IOException ex) {
-            Logger.getLogger(Networking.class.getName()).log(Level.SEVERE, null, ex);
-            throw new RuntimeException("Can not use port " + tcpModeratorPort + ".h");
-        }*/
-        
     }
     
     public void setUpDefault() throws IOException{
@@ -123,6 +107,8 @@ public final class Networking implements Closeable{
         }
     }
     
+    
+    
     private void sendBroadcastUDP(String msg){
         udpOutData = msg.getBytes();
         for (int port = BapPorts.PLAYER_PORT; port < BapPorts.PLAYER_PORT + 
@@ -149,6 +135,8 @@ public final class Networking implements Closeable{
     public int getModeratorPort() {
         return tcpModeratorPort;
     }
+    
+     
 
     @Override
     public void close() throws IOException {
@@ -157,5 +145,21 @@ public final class Networking implements Closeable{
         UDPSocket.close();
     }
 
-    
+  /*  public synchronized void broadcastGame(){
+        new Thread(){
+
+            @Override
+            public void run() {
+                while(Game.getState() != GameStateEnum.FINISHED){
+                    try {
+                        sendBroadcastUDP(Game.getInfoJSON());
+                        Thread.sleep(200);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Networking.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        
+        }.start();
+    }*/
 }

@@ -22,10 +22,12 @@ public class Player {
     private final String identity;
     private final PlayerPeer peer;
     private int currentScore;
+    private int totalScore;
     private PlayerStateEnum state;
     private static ArrayList<Player> all;
     private Game game;
     private int appliedTimes;
+    private boolean online;
     
     static{
         all = new ArrayList<>();
@@ -36,6 +38,7 @@ public class Player {
         this.identity = identity;
         this.peer = peer;
         currentScore = 0;
+        totalScore = 0;
         state =  PlayerStateEnum.PASSIVE;
         all.add(this);
         appliedTimes = 0;
@@ -113,6 +116,19 @@ public class Player {
     void reset() {
         currentScore = 0;
         state = PlayerStateEnum.PASSIVE;
+    }
+
+    void saveScore() {
+        totalScore += currentScore;
+        currentScore = 0;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
     }
     
     
