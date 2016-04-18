@@ -7,11 +7,15 @@
 package Networking;
 
 /**
- * <p> TODO description of PeerState
+ * <p> State of the peer from networking point of view
  * @author Vladimir Vorobyev (vorobvla)
  * @created on Sep 7, 2014 at 12:50:59 PM
  */
-
 public enum PeerState {
-    CONNECTED, DISCONNECTED
+    /** Network communication between moderator application and player state 
+     is enabled. */
+    CONNECTED, 
+    /**  Network communication between moderator application and player state 
+     is disabled.  */
+    DISCONNECTED
 }

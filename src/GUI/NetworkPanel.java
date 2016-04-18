@@ -25,19 +25,27 @@ public class NetworkPanel extends javax.swing.JPanel {
      */
     public NetworkPanel() {
         initComponents();
+        interfaceNameField.setText(Networking.getInstance().getNetIntfceName());
+        moderatorPortField.setText(Integer.toString(Networking.getInstance().getModeratorPort()));
+        broadcastCheckBox.setSelected(Networking.getInstance().getBroadcastGameOpt());
     }
     
-    public void setup(String ifce, Integer port, Component from) throws RuntimeException{
+    public boolean setup(String ifce, Integer port, Component from) throws RuntimeException{
+        if ((ifce == null) || (port == null) ) { 
+            return false;
+        };
+        
         try {
-            if (ifce != null){
+            if ( !(ifce.matches(Networking.getInstance().getNetIntfceName())) )
+            {
             
                 Networking.getInstance().setUpByInfceName(ifce);
                 interfaceNameField.setText(ifce);
             
         }
-        if (port != null){
-            Networking.getInstance().setModeratorPort(port);
-            moderatorPortField.setText(port.toString());
+            if (port != Networking.getInstance().getModeratorPort()){
+                Networking.getInstance().setModeratorPort(port);
+                moderatorPortField.setText(port.toString());
         }
         } catch (RuntimeException ex) {
             switch (ex.getMessage()){
@@ -55,8 +63,10 @@ public class NetworkPanel extends javax.swing.JPanel {
                     JOptionPane.ERROR_MESSAGE);
                     break;
             }
+            return false;
         } 
-        
+        Networking.getInstance().setBroadcastGameOpt(broadcastCheckBox.isSelected());
+        return true;
     }
 
     /**
@@ -67,7 +77,6 @@ public class NetworkPanel extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         IfceErrLabel = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -76,72 +85,23 @@ public class NetworkPanel extends javax.swing.JPanel {
         moderatorPortField = new javax.swing.JTextField();
         PortErrLabel = new javax.swing.JLabel();
         OkButton = new javax.swing.JButton();
+        broadcastCheckBox = new javax.swing.JCheckBox();
 
         setBorder(javax.swing.BorderFactory.createTitledBorder("Networking Settings"));
-        setLayout(new java.awt.GridBagLayout());
 
         PortErrLabel.setVisible(false);
         IfceErrLabel.setText("jLabel2");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 7;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 327;
-        add(IfceErrLabel, gridBagConstraints);
 
         jLabel2.setText("Port");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.ipadx = 150;
-        add(jLabel2, gridBagConstraints);
 
         interfaceNameField.setText("");
-        interfaceNameField.addCaretListener(new javax.swing.event.CaretListener() {
-            public void caretUpdate(javax.swing.event.CaretEvent evt) {
-                interfaceNameFieldCaretUpdate(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 115;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        add(interfaceNameField, gridBagConstraints);
 
         jLabel1.setText("Network Intarface name");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.ipadx = 10;
-        add(jLabel1, gridBagConstraints);
 
         moderatorPortField.setText("");
-        moderatorPortField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                moderatorPortFieldActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 115;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        add(moderatorPortField, gridBagConstraints);
 
         PortErrLabel.setText("jLabel2");
         PortErrLabel.setVisible(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 159;
-        add(PortErrLabel, gridBagConstraints);
 
         OkButton.setText(Constants.BTN_OK);
         OkButton.addActionListener(new java.awt.event.ActionListener() {
@@ -149,51 +109,70 @@ public class NetworkPanel extends javax.swing.JPanel {
                 OkButtonActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.ipadx = 17;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        add(OkButton, gridBagConstraints);
+
+        broadcastCheckBox.setText("Broadcast game information  to players");
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(22, 22, 22)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(OkButton, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(0, 0, 0)
+                            .addComponent(interfaceNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(IfceErrLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(0, 0, 0)
+                            .addComponent(moderatorPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(broadcastCheckBox)
+                        .addComponent(PortErrLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(46, 46, 46)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(5, 5, 5)
+                        .addComponent(jLabel1))
+                    .addComponent(interfaceNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(IfceErrLabel)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(5, 5, 5)
+                        .addComponent(jLabel2))
+                    .addComponent(moderatorPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(PortErrLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(broadcastCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
+                .addComponent(OkButton)
+                .addGap(22, 22, 22))
+        );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void interfaceNameFieldCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_interfaceNameFieldCaretUpdate
-
-    }//GEN-LAST:event_interfaceNameFieldCaretUpdate
-
     private void OkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OkButtonActionPerformed
-        //TODO: complete input control
-        if (!Networking.getInstance().getNetIntfceName().matches(interfaceNameField.getText())){
-            //TODO control input
-            //Networking.getInstance().setUpByInfceName(interfaceNameField.getText());
+        if (setup(interfaceNameField.getText(), Integer.parseInt(moderatorPortField.getText()), this)){
+            JOptionPane.showMessageDialog(this,
+                "Network settings have been sucessfully changed",
+                "Network settings changed",
+                JOptionPane.INFORMATION_MESSAGE);
         }
-        
-        if (Networking.getInstance().getModeratorPort() != Integer.parseInt(moderatorPortField.getText())){
-            try {
-                Networking.getInstance().setModeratorPort(Integer.parseInt(moderatorPortField.getText()));
-                /*      JOptionPane.showMessageDialog(this,
-                    "Eggs are not supposed to be green.",
-                    "Inane error",
-                    JOptionPane.ERROR_MESSAGE);*/
-                //        PortErrLabel.setText(Constants.IFCE_NAME_ERR(InterfaceNameField.getText()));
-                //        PortErrLabel.setVisible(true);
-            } catch (RuntimeException ex) {
-                Logger.getLogger(NetworkPanel.class.getName()).log(Level.SEVERE, null, ex);
-                System.err.println("Port " + Networking.getInstance().getModeratorPort() + "occupied");
-            }         
-       }
-        //Networking.getInstance().callPlayers();        
     }//GEN-LAST:event_OkButtonActionPerformed
-
-    private void moderatorPortFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_moderatorPortFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_moderatorPortFieldActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel IfceErrLabel;
     private javax.swing.JButton OkButton;
     private javax.swing.JLabel PortErrLabel;
+    private javax.swing.JCheckBox broadcastCheckBox;
     private javax.swing.JTextField interfaceNameField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

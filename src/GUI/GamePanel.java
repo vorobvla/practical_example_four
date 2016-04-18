@@ -9,16 +9,10 @@ import Model.Game;
 import Model.GameException;
 import Model.Player;
 import edu.cvut.vorobvla.bap.GameStateEnum;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JTable;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
+import javax.swing.JButton;
 
 /**
  *
@@ -49,16 +43,22 @@ public class GamePanel extends javax.swing.JPanel {
     
     public void startGame(Collection<Player> players) throws GameException{
         for (Player p : players) {
-            Game.getInstance().addPlayer(p);
-            
+            Game.getInstance().addPlayer(p);           
         }
-        gameInfoPanel.setupTable();       
+        Game.getInstance().startBroadcast();
+        gameInfoPanel.setupTable();  
+        
     }
     
     private void update(){
         GameStateEnum state = Game.getState();
         gameInfoPanel.update();
         controlPanel.update(state);
+        questionPanel.update(state);
+    }
+    
+    public JButton getFinishBtn(){
+        return controlPanel.getFinishBtn();
     }
     
 
@@ -74,77 +74,51 @@ public class GamePanel extends javax.swing.JPanel {
 
         controlPanel = new GUI.ControlPanel();
         gameInfoPanel = new GUI.GameInfoPanel();
-        questionPanel1 = new GUI.QuestionPanel();
-        timingPanel1 = new GUI.TimingPanel();
+        questionPanel = new GUI.QuestionPanel();
 
         setMinimumSize(new java.awt.Dimension(800, 650));
         setPreferredSize(new java.awt.Dimension(800, 650));
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
-        layout.columnWidths = new int[] {0, 5, 0};
+        layout.columnWidths = new int[] {0, 5, 0, 5, 0};
         layout.rowHeights = new int[] {0, 5, 0, 5, 0};
         setLayout(layout);
 
         controlPanel.setMinimumSize(new java.awt.Dimension(350, 100));
         controlPanel.setPreferredSize(new java.awt.Dimension(300, 150));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipadx = 200;
         gridBagConstraints.ipady = 300;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weighty = 0.1;
         add(controlPanel, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridheight = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
         add(gameInfoPanel, gridBagConstraints);
 
-        javax.swing.GroupLayout questionPanel1Layout = new javax.swing.GroupLayout(questionPanel1);
-        questionPanel1.setLayout(questionPanel1Layout);
-        questionPanel1Layout.setHorizontalGroup(
-            questionPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 538, Short.MAX_VALUE)
-        );
-        questionPanel1Layout.setVerticalGroup(
-            questionPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 172, Short.MAX_VALUE)
-        );
-
+        questionPanel.setMinimumSize(new java.awt.Dimension(100, 400));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.gridheight = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        add(questionPanel1, gridBagConstraints);
-
-        timingPanel1.setMinimumSize(new java.awt.Dimension(200, 200));
-        timingPanel1.setPreferredSize(new java.awt.Dimension(200, 200));
-
-        javax.swing.GroupLayout timingPanel1Layout = new javax.swing.GroupLayout(timingPanel1);
-        timingPanel1.setLayout(timingPanel1Layout);
-        timingPanel1Layout.setHorizontalGroup(
-            timingPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 188, Short.MAX_VALUE)
-        );
-        timingPanel1Layout.setVerticalGroup(
-            timingPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 377, Short.MAX_VALUE)
-        );
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        add(timingPanel1, gridBagConstraints);
+        gridBagConstraints.weightx = 10.0;
+        add(questionPanel, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private GUI.ControlPanel controlPanel;
     private GUI.GameInfoPanel gameInfoPanel;
-    private GUI.QuestionPanel questionPanel1;
-    private GUI.TimingPanel timingPanel1;
+    private GUI.QuestionPanel questionPanel;
     // End of variables declaration//GEN-END:variables
 
 }

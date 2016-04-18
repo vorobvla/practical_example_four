@@ -7,41 +7,54 @@
 package Networking;
 
 import Model.Game;
-import Model.GameException;
 import Model.Player;
-import edu.cvut.vorobvla.bap.BapJSONKeys;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import edu.cvut.vorobvla.bap.BapMessages;
-import edu.cvut.vorobvla.bap.PlayerStateEnum;
+import edu.cvut.vorobvla.bap.GameStateEnum;
 import java.io.Closeable;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 
 /**
- * <p> TODO description of Player
+ * <p> Provides network communication with an instance of player application (peer)
+ * based on TCP protocol. 
  * @author Vladimir Vorobyev (vorobvla)
  * @created on Sep 7, 2014 at 12:50:59 PM
  */
 
 public class PlayerPeer implements Runnable, Closeable{
+    /** {@code Socket} is used for network communication with peer based on TCP
+     * protocol. */
     private Socket socket;
+    /** Handles input from {@see #socket}. */
     private BufferedReader in;
+    /** Handles output to {@see #socket}. */
     private PrintWriter out;
+    /** Used as a buffer for input and output messages. */
     private String msg;
+    /** Represents connected player in the context of game. */
     private Player player;
+    /** Sate of the peer in the context of network communication. */
     private PeerState state;
 
+    /**
+     * Constructs a {@see #PlayerPeer} object with specified socket.
+     * After verifying connection (getting 
+     * {@see edu.cvut.vorobvla.bap.BapMessages#MSG_INIT_CONNECTION} from
+     * peer) and getting from peer the player identity initializes 
+     * {@see #player} as a new {@see Model.Player} object with 
+     * {@see Model.Player#identity} set to the received value.
+     * Then sets {@see #state} to {@see PeerState#CONNECTED} and sends peer conformation of connection 
+     * ({@see edu.cvut.vorobvla.bap.BapMessages#MSG_CONNECTION_EST}).
+     * @param socket 
+     */
     public PlayerPeer(Socket socket) {
         try {
-            //fill from socket
             this.socket = socket;
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
@@ -71,6 +84,15 @@ public class PlayerPeer implements Runnable, Closeable{
         out.println(BapMessages.MSG_CONNECTION_TERM);
     }*/
 
+    /**
+     * Active listens for peer. Calls {@see Player.applyForAnswer} of 
+     * {@see #player} when receives
+     * {@see edu.cvut.vorobvla.bap.BapMessages#MSG_ANSWER_APPLYING} (sent by
+     * player application when player applies for answer). Calls 
+     * {@see Model.Game#finishGame()} when receives
+     * {@see edu.cvut.vorobvla.bap.BapMessages#MSG_CONNECTION_TERM} (peer
+     * terminates connection).
+     */
     @Override
     public void run() {
         
@@ -82,8 +104,12 @@ public class PlayerPeer implements Runnable, Closeable{
                     case BapMessages.MSG_ANSWER_APPLYING : 
                         player.applyForAnswer();
                         break;
-                    case "null" :
+                    case BapMessages.MSG_CONNECTION_TERM :
                         state = PeerState.DISCONNECTED;
+                        Game.getInstance().finishGame();
+                        Player.getAll().remove(player);
+                        player = null;
+                        return;
                 }
                     
                 System.out.println("got msg: '" + msg +  "'" + " from "+ player.getIdentity() + " at " + System.currentTimeMillis());
@@ -93,7 +119,10 @@ public class PlayerPeer implements Runnable, Closeable{
         }
     }
   
-    
+    /**
+     * Sends the specified message to peer.
+     * @param msg desired message.
+     */
     public void sendMsg(String msg){
         //sending JSONObject
         /*
@@ -107,11 +136,14 @@ public class PlayerPeer implements Runnable, Closeable{
         out.println(msg);
     }
 
+    /**
+     * Sends {@see edu.cvut.vorobvla.bap.BapMessages#MSG_CONNECTION_TERM}
+     * to peer.
+     * @throws IOException 
+     */
     @Override
     public void close() throws IOException {
         out.println(BapMessages.MSG_CONNECTION_TERM);
         player.setOnline(false);
-    }
-    
-    
+    }   
 }

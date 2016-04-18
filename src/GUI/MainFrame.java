@@ -5,16 +5,19 @@
  */
 package GUI;
 
+
 import Model.Game;
 import Model.GameException;
 import Model.Player;
 import Networking.Networking;
+import edu.cvut.vorobvla.bap.GameStateEnum;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -25,28 +28,28 @@ import javax.swing.JOptionPane;
  * @author Vladimir Vorobyev (vorobvla)
  */
 public class MainFrame extends javax.swing.JFrame {
+    
+    
+    private ScheduledThreadPoolExecutor scheduler;
 
     /**
      * Creates new form MainJFrame
      */
     public MainFrame() {
+        //setup icon
         try {
             setIconImage(ImageIO.read(getClass().getResource("/resources/Icon.png")));
         } catch (IOException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
             System.err.println("could not find icon resource");
-        };
-        initComponents();
-        initComponentsNotGenerated();
-        try {
-            networkPanel.setup(Networking.getInstance().getNetIntfceName(), Networking.getInstance().getModeratorPort(), this);
-        } catch (RuntimeException ex){
-            JOptionPane.showMessageDialog(this,
-                    ex.getMessage() + " Try to change network settings",
-                    "Networking error",
-                    JOptionPane.ERROR_MESSAGE);
         }
-        Networking.getInstance().callPlayers();
+        scheduler = new ScheduledThreadPoolExecutor(1);
+        scheduler.setExecuteExistingDelayedTasksAfterShutdownPolicy(true);
+        initComponents();
+        initComponentsNotGenerated();        
+        startPanel.launchPlayerRefresh(scheduler);
+
+      //  Networking.getInstance().callPlayers();
         setTitle("Moderator App Prototype");
         showCard("startTabbedPanel");
         
@@ -66,6 +69,17 @@ public class MainFrame extends javax.swing.JFrame {
                 startGameButtonActionPerformed();
             }           
         });
+        
+        gamePanel.getFinishBtn().addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                endGame();
+            }
+
+            
+        });
+        
         this.addWindowListener(new WindowAdapter() {
 
             @Override
@@ -80,30 +94,34 @@ public class MainFrame extends javax.swing.JFrame {
         });
     }
     
+    //reset game & exit to main menu
+    private void endGame() {
+        if (Game.getState() == GameStateEnum.FINISH){
+            Game.getInstance().reset();
+            showCard("startTabbedPanel");
+            //startPanel.launchPlayerRefresh(scheduler);
+        }
+    }
+    
+    //switch to Game
     private void startGameButtonActionPerformed() {
         try {
-            /*for (Player p: Player.getAll()){
-            try {
-            Game.getInstance().addPlayer(p);
-            } catch (GameException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            }*/
             gamePanel.startGame(Player.getAll());
         } catch (GameException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        //scheduler.shutdownNow();
         showCard("gamePanel");
     }
     
+    //switch to network settongs
     private void setupNetworkActionPerfomed() {
         tabbedPane.setSelectedComponent(networkPanel);
     }
     
-    
-    public static void showCard(String name){
-        ((CardLayout)mainPanel.getLayout()).show(mainPanel, name);
-        
+    //switch to cared ragged with "name"
+    private static void showCard(String name){
+        ((CardLayout)mainPanel.getLayout()).show(mainPanel, name);        
     }
 
     /**
@@ -119,11 +137,6 @@ public class MainFrame extends javax.swing.JFrame {
         tabbedPane = new javax.swing.JTabbedPane();
         startPanel = new GUI.StartPanel();
         networkPanel = new GUI.NetworkPanel();
-        jPanel1 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jEditorPane1 = new javax.swing.JEditorPane();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTextPane1 = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(800, 600));
@@ -133,18 +146,6 @@ public class MainFrame extends javax.swing.JFrame {
 
         tabbedPane.addTab("Start Panel", startPanel);
         tabbedPane.addTab("Network Settings", networkPanel);
-
-        jEditorPane1.setText("<b>asd</b>");
-        jScrollPane1.setViewportView(jEditorPane1);
-
-        jPanel1.add(jScrollPane1);
-
-        jTextPane1.setText("<b>asd</b>");
-        jScrollPane2.setViewportView(jTextPane1);
-
-        jPanel1.add(jScrollPane2);
-
-        tabbedPane.addTab("tab3", jPanel1);
 
         /*
 
@@ -156,8 +157,8 @@ public class MainFrame extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    void initComponentsNotGenerated(){
+    //my own initcomponents()
+    final void initComponentsNotGenerated(){
         gamePanel = new GamePanel();
         mainPanel.add(gamePanel, "gamePanel");
         pack();
@@ -199,12 +200,12 @@ public class MainFrame extends javax.swing.JFrame {
         });
     }
 
+    public ScheduledThreadPoolExecutor getScheduler() {
+        return scheduler;
+    }
+    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JEditorPane jEditorPane1;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextPane jTextPane1;
     private static javax.swing.JPanel mainPanel;
     private GUI.NetworkPanel networkPanel;
     private GUI.StartPanel startPanel;

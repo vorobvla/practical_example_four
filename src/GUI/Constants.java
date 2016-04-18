@@ -17,7 +17,8 @@ public abstract class Constants {
     
     
     //--- GAME PANEL --
-    public static final String LAB_QUESTION_CONTENT = "QUESTION";    
+    public static final String LAB_QUESTION_CONTENT = "QUESTION";  
+    public static final String NONE = "none";    
     
     
     //--- NETWORK SETUP ---
@@ -30,5 +31,12 @@ public abstract class Constants {
     
     public static final String ERR_IFCE_NAME(String s){   
         return "can not intarface with name \"" + s + "\"";
+    }
+    
+    public static final String PRINT(Object o){
+        if (o == null){
+            return NONE;
+        }
+        return o.toString();
     }
 }

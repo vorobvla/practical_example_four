@@ -5,6 +5,9 @@
  */
 package GUI;
 
+import Model.Game;
+import edu.cvut.vorobvla.bap.GameStateEnum;
+
 /**
  *
  * @author Vladimir Vorobyev (vorobvla)
@@ -17,6 +20,29 @@ public class QuestionPanel extends javax.swing.JPanel {
     public QuestionPanel() {
         initComponents();
     }
+    
+    public void update(GameStateEnum state){        
+        if ( (state == GameStateEnum.READING_QUESTION) ||
+                (state == GameStateEnum.AWAINTING_ANSWER) ||                
+                (state == GameStateEnum.ANSWER)||                
+                (state == GameStateEnum.PROCESSING_ANSWER)
+            )
+        {            
+            Model.Question currQ = Game.getInstance().getCurrentQuestion();
+            QuestionPriceField.setText(Constants.PRINT(currQ.getPrice()));
+            QuestionTopicField.setText(Constants.PRINT(currQ.getTopic()));
+            textArea.setText(Constants.PRINT(currQ.getText()));
+            answerArea.setText(Constants.PRINT(currQ.getAnswer()));
+            notesArea.setText(Constants.PRINT(currQ.getNotes()));
+        } else {
+            QuestionPriceField.setText(Constants.NONE);
+            QuestionTopicField.setText(Constants.NONE);
+            textArea.setText(Constants.NONE);
+            answerArea.setText(Constants.NONE);
+            notesArea.setText(Constants.NONE);
+        }
+        
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -26,24 +52,143 @@ public class QuestionPanel extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
-        setBorder(javax.swing.BorderFactory.createTitledBorder("Question"));
+        jScrollPane1 = new javax.swing.JScrollPane();
+        textArea = new javax.swing.JTextArea();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        answerArea = new javax.swing.JTextArea();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        notesArea = new javax.swing.JTextArea();
+        PricePanel = new javax.swing.JPanel();
+        QuestionPriceField = new javax.swing.JTextField();
+        Topic = new javax.swing.JPanel();
+        QuestionTopicField = new javax.swing.JTextField();
+
+        setBorder(javax.swing.BorderFactory.createTitledBorder("Current Question"));
         setMinimumSize(new java.awt.Dimension(100, 50));
         setPreferredSize(new java.awt.Dimension(100, 50));
+        setLayout(new java.awt.GridBagLayout());
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 336, Short.MAX_VALUE)
+        jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder("Text"));
+
+        textArea.setEditable(false);
+        textArea.setColumns(20);
+        textArea.setRows(5);
+        textArea.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        textArea.setText(Constants.NONE);
+        jScrollPane1.setViewportView(textArea);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.5;
+        gridBagConstraints.weighty = 0.2;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 6);
+        add(jScrollPane1, gridBagConstraints);
+
+        jScrollPane3.setBorder(javax.swing.BorderFactory.createTitledBorder("Answer(s)"));
+
+        answerArea.setEditable(false);
+        answerArea.setColumns(20);
+        answerArea.setRows(5);
+        answerArea.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        answerArea.setText(Constants.NONE);
+        jScrollPane3.setViewportView(answerArea);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.5;
+        gridBagConstraints.weighty = 0.3;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 6);
+        add(jScrollPane3, gridBagConstraints);
+
+        jScrollPane4.setBorder(javax.swing.BorderFactory.createTitledBorder("Notes"));
+
+        notesArea.setEditable(false);
+        notesArea.setColumns(20);
+        notesArea.setRows(5);
+        notesArea.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        notesArea.setText(Constants.NONE);
+        jScrollPane4.setViewportView(notesArea);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.4;
+        gridBagConstraints.weighty = 0.3;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 6);
+        add(jScrollPane4, gridBagConstraints);
+
+        PricePanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Price"));
+
+        QuestionPriceField.setEditable(false);
+        QuestionPriceField.setText(Constants.NONE);
+        QuestionPriceField.setBorder(null);
+
+        javax.swing.GroupLayout PricePanelLayout = new javax.swing.GroupLayout(PricePanel);
+        PricePanel.setLayout(PricePanelLayout);
+        PricePanelLayout.setHorizontalGroup(
+            PricePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(QuestionPriceField, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 240, Short.MAX_VALUE)
+        PricePanelLayout.setVerticalGroup(
+            PricePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(QuestionPriceField, javax.swing.GroupLayout.Alignment.TRAILING)
         );
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.1;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 6);
+        add(PricePanel, gridBagConstraints);
+
+        Topic.setBorder(javax.swing.BorderFactory.createTitledBorder("Topic"));
+
+        QuestionTopicField.setEditable(false);
+        QuestionTopicField.setText(Constants.NONE);
+        QuestionTopicField.setBorder(null);
+
+        javax.swing.GroupLayout TopicLayout = new javax.swing.GroupLayout(Topic);
+        Topic.setLayout(TopicLayout);
+        TopicLayout.setHorizontalGroup(
+            TopicLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(QuestionTopicField, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
+        );
+        TopicLayout.setVerticalGroup(
+            TopicLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(TopicLayout.createSequentialGroup()
+                .addComponent(QuestionTopicField, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.2;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 6);
+        add(Topic, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel PricePanel;
+    private javax.swing.JTextField QuestionPriceField;
+    private javax.swing.JTextField QuestionTopicField;
+    private javax.swing.JPanel Topic;
+    private javax.swing.JTextArea answerArea;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JTextArea notesArea;
+    private javax.swing.JTextArea textArea;
     // End of variables declaration//GEN-END:variables
 }

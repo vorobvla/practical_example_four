@@ -6,24 +6,65 @@
 package GUI;
 import Model.Player;
 import Networking.*;
-import java.util.ArrayList;
-import javax.swing.DefaultListModel;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import javax.swing.AbstractListModel;
 import javax.swing.JButton;
-import javax.swing.JList;
-import javax.swing.ListSelectionModel;
 
 /**
  *
  * @author Vladimir Vorobyev (vorobvla)
  */
 public class StartPanel extends javax.swing.JPanel {
+    
+    
+    private class PlayerListModel extends AbstractListModel{
 
+            @Override
+            public int getSize() {
+                return Player.getAll().size();
+            }
+
+            @Override
+            public Object getElementAt(int i) {
+                return Player.getAll().get(i).getIdentity();
+            }
+            
+            public void update() {
+                this.fireContentsChanged(this, 0, Player.getAll().size() - 1);
+            }
+    }
+
+
+    
+    
     /**
      * Creates new form StartPanel
+     * player refresh.
      */
     public StartPanel() {
-        initComponents();       
+        
+        initComponents(); 
+        playersList.setEnabled(true);
+        playersList.setModel(new PlayerListModel());
+         
     }
+    
+    public void launchPlayerRefresh(ScheduledThreadPoolExecutor scheduler){
+        // active waiting -- bad, but unavoidable evil :(
+        scheduler.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                ((PlayerListModel)playersList.getModel()).update();
+            }
+        }, 1000, 1000, TimeUnit.MILLISECONDS);   
+    }
+    
+    public  void updatePlayers(){
+        playersList.updateUI();
+    }
+ 
 
     public JButton getStartGameButton() {
         return startGameButton;
@@ -40,10 +81,7 @@ public class StartPanel extends javax.swing.JPanel {
     public JButton getSetupNetworkButton() {
         return setupNetworkButton;
     }
-
-    public JList getPlayersList() {
-        return PlayersList;
-    }
+   
     
     
     
@@ -63,11 +101,9 @@ public class StartPanel extends javax.swing.JPanel {
         setupNetworkButton = new javax.swing.JButton();
         setupSystemButton = new javax.swing.JButton();
         startGameButton = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        connectionsTextArea = new javax.swing.JTextArea();
         setupGameButton = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
-        PlayersList = new javax.swing.JList();
+        playersList = new javax.swing.JList();
 
         setBorder(javax.swing.BorderFactory.createTitledBorder("Start Panel"));
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
@@ -126,24 +162,6 @@ public class StartPanel extends javax.swing.JPanel {
         gridBagConstraints.ipady = 10;
         add(startGameButton, gridBagConstraints);
 
-        connectionsTextArea.setEditable(false);
-        connectionsTextArea.setColumns(20);
-        connectionsTextArea.setRows(5);
-        connectionsTextArea.setPreferredSize(new java.awt.Dimension(180, 90));
-        jScrollPane1.setViewportView(connectionsTextArea);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 9;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.ipadx = 204;
-        gridBagConstraints.ipady = 199;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        add(jScrollPane1, gridBagConstraints);
-
         setupGameButton.setText("Setup Game");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -153,15 +171,25 @@ public class StartPanel extends javax.swing.JPanel {
         gridBagConstraints.ipady = 10;
         add(setupGameButton, gridBagConstraints);
 
+        jScrollPane2.setBorder(javax.swing.BorderFactory.createTitledBorder("Connected Players"));
         jScrollPane2.setPreferredSize(new java.awt.Dimension(60, 252));
 
-        PlayersList.setBorder(javax.swing.BorderFactory.createTitledBorder("Players' overview"));
-        PlayersList.setModel(new javax.swing.AbstractListModel() {
+        playersList.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        playersList.setDragEnabled(false);
+        playersList.setSelectionInterval(-1, -1);
+        playersList.setModel(new javax.swing.AbstractListModel() {
             public int getSize() { return Player.getAll().size(); }
             public Object getElementAt(int i) { return Player.getAll().get(i).getIdentity(); }
 
         });
-        jScrollPane2.setViewportView(PlayersList);
+        playersList.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        playersList.setFocusable(false);
+        playersList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                playersListMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(playersList);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -182,19 +210,23 @@ public class StartPanel extends javax.swing.JPanel {
 
     private void callPlayersButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_callPlayersButtonActionPerformed
         Networking.getInstance().callPlayers();
+        
     }//GEN-LAST:event_callPlayersButtonActionPerformed
 
     private void setupSystemButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setupSystemButtonActionPerformed
         Player.getAll().add(new Player("test", null));
     }//GEN-LAST:event_setupSystemButtonActionPerformed
 
+    private void playersListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_playersListMouseClicked
+        playersList.updateUI();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_playersListMouseClicked
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JList PlayersList;
     private javax.swing.JButton callPlayersButton;
-    private javax.swing.JTextArea connectionsTextArea;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JList playersList;
     private javax.swing.JButton setupGameButton;
     private javax.swing.JButton setupNetworkButton;
     private javax.swing.JButton setupSystemButton;
