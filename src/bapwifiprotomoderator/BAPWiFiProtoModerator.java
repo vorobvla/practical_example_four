@@ -6,14 +6,13 @@
 
 package bapwifiprotomoderator;
 import GUI.MainFrame;
-import GUI.StartPanel;
-import Model.Player;
+import GUI.NetworkPanel;
 import Networking.Networking;
-import java.io.IOException;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.lang.NullPointerException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
- * <p> TODO description of BAPWiFiProtoMaster
+ * <p> Main class of the application.
  * @author Vladimir Vorobyev (vorobvla)
  * @created on Sep 7, 2014 at 12:50:59 PM
  */
@@ -21,17 +20,26 @@ import java.net.UnknownHostException;
 public class BAPWiFiProtoModerator {
 
     /**
+     * Sets up networking to default and constructs 
+     * {@see GUI.MainFrame}.
      * @param args the command line arguments
-     * @throws java.net.UnknownHostException
-     * @throws java.net.SocketException
      */
-    public static void main(String[] args) throws UnknownHostException, SocketException, IOException {
+    public static void main(String[] args) {
         // TODO code application logic here
-//        Networking.getInstance().callPlayers();
+        try {
+            Networking.getInstance().setUpDefault();
+        }
+        catch (NullPointerException ex){
+            Logger.getLogger(BAPWiFiProtoModerator.class.getName())
+                    .log(Level.WARNING, "NullPointer -- possibly network interface not found", ex);
+        }
+        catch (RuntimeException ex){
+            Logger.getLogger(BAPWiFiProtoModerator.class.getName())
+                    .log(Level.WARNING, "Socket failure -- try other port", ex);
+        }
+        
         MainFrame frame = new MainFrame();
-        //NetworkFrame nframe = new NetworkFrame();
         frame.setVisible(true);
-       // nframe.setVisible(true);
-        //
+       
     }
 }
