@@ -97,9 +97,8 @@ public class MainFrame extends javax.swing.JFrame {
     //reset game & exit to main menu
     private void endGame() {
         if (Game.getState() == GameStateEnum.FINISH){
-            Game.getInstance().reset();
+         //   Game.getInstance().reset();
             showCard("startTabbedPanel");
-            //startPanel.launchPlayerRefresh(scheduler);
         }
     }
     
@@ -110,7 +109,6 @@ public class MainFrame extends javax.swing.JFrame {
         } catch (GameException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //scheduler.shutdownNow();
         showCard("gamePanel");
     }
     

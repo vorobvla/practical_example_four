@@ -144,33 +144,33 @@ public class Player {
      */
     //try to apply for answer. game must recieve the application only if player is in active state
     public void applyForAnswer() {
-        try {
-            Game.getInstance().log(identity + "[DB] applied for answer at " + System.currentTimeMillis());
-            switch (state){
-                case ACTIVE :
-                    Game.recieveApplication(this);
-                    appliedTimes++;/*
-                    if (appliedTimes < game.getInstance().getMaximumApplying()){
-                    state = PlayerStateEnum.PASSIVE;
-                    resetAppliedTimes();
-                    }*/
-                    break;
-                case FALSEACTIVE :
-                    // falsestart
-                    appliedTimes++;
-                    Game.recieveFasleStart(this);
-                    Game.getInstance().log(identity + "[DB] state falseactive ");
-                    break;
-                case PASSIVE :
-                    Game.getInstance().log(identity + "[DB]state passive ");
-                    // falsestart
-                    break;
-                case CHOOSEING_QUESTION :
-                    // falsestart
-                    break;
-            }
-        } catch (GameException ex) {
-            Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
+        Game.getInstance().log(identity + "[DB] applied for answer at " + System.currentTimeMillis());
+        if (appliedTimes >= Game.getMaximumApplying()){
+            Game.getInstance().log(identity + "[DB] max applying reached");
+            return;
+        }
+        switch (state){
+            case ACTIVE :
+                Game.recieveApplication(this);
+                appliedTimes++;/*
+                if (appliedTimes < game.getInstance().getMaximumApplying()){
+                state = PlayerStateEnum.PASSIVE;
+                resetAppliedTimes();
+                }*/
+                break;
+            case FALSEACTIVE :
+                // falsestart
+                appliedTimes++;
+                Game.recieveFasleStart(this);
+                Game.getInstance().log(identity + "[DB] state falseactive ");
+                break;
+            case PASSIVE :
+                Game.getInstance().log(identity + "[DB]state passive ");
+                // falsestart
+                break;
+            case CHOOSEING_QUESTION :
+                // falsestart
+                break;
         }
     }
 

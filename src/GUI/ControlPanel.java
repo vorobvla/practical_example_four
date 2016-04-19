@@ -71,6 +71,8 @@ public class ControlPanel extends javax.swing.JPanel {
             Game.proceed();
         } catch (GameException ex) {
             Logger.getLogger(GamePanel.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ControlPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -307,7 +309,7 @@ public class ControlPanel extends javax.swing.JPanel {
 
     private void finishBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finishBtnActionPerformed
         if (Game.getState() != GameStateEnum.FINISH){
-            Game.finishGame();         
+            Game.getInstance().finishGame();         
         }
     }//GEN-LAST:event_finishBtnActionPerformed
 

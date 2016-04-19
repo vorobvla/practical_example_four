@@ -29,7 +29,7 @@ public class PrimitiveQuestionDriver extends AbstractQuestionDriver{
     /** Number of the current question (in the current topic). */
     private int questionCnt;
     /** Topic number of the current question. */
-    private int topicCnt;
+    private int currentTopicCnt;
 
     /**
      * Constructs a new {@code PrimitiveQuestionDriver} object with specified 
@@ -43,7 +43,7 @@ public class PrimitiveQuestionDriver extends AbstractQuestionDriver{
         this.priceDifference = priceDifference;
         this.currentPrice = 0;
         questionCnt = 0;
-        topicCnt = 1;
+        currentTopicCnt = 1;
     }
     
     /**
@@ -53,7 +53,7 @@ public class PrimitiveQuestionDriver extends AbstractQuestionDriver{
         if (questionCnt == numberOfQuestions){
             questionCnt = 0;
             currentPrice = 0;
-            topicCnt++;
+            currentTopicCnt++;
         }
         questionCnt++;
         currentPrice += priceDifference;
@@ -62,7 +62,7 @@ public class PrimitiveQuestionDriver extends AbstractQuestionDriver{
     @Override
     public Question getQuestion() {
         incPrice();
-        return new Question(currentPrice, "Topic " + topicCnt, null, null, null);
+        return new Question(currentPrice, "Topic " + currentTopicCnt, null, null, null);
     }
     
 

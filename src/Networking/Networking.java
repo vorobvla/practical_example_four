@@ -197,7 +197,7 @@ public final class Networking implements Closeable{
      */    
     public void broadcastGameInfo(){
         JSONObject sendObj = Game.getInfoJSON();
-       //System.out.println(sendObj);
+        //System.out.println(sendObj);
         sendObj.put(BapJSONKeys.KEY_BROADCAST_TIMESTAMP, System.currentTimeMillis());
         sendBroadcastUDP(sendObj.toJSONString().getBytes());
     }

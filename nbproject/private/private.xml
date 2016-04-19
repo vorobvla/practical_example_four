@@ -12,14 +12,17 @@
         </group>
         <group name="TestApps"/>
         <group name="BAP">
-            <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/bapwifiprotomoderator/BAPWiFiProtoModerator.java</file>
-            <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/Model/Game.java</file>
-            <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/GUI/GamePanel.java</file>
-            <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/GUI/ControlPanel.java</file>
             <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/GUI/MainFrame.java</file>
+            <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/Model/Game.java</file>
             <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/GUI/StartPanel.java</file>
+            <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/Networking/PlayerPeer.java</file>
+            <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/bapwifiprotomoderator/BAPWiFiProtoModerator.java</file>
             <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/Networking/Networking.java</file>
-            <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/GUI/NetworkPanel.java</file>
+            <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/Model/Constants.java</file>
+            <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/Model/PrimitiveQuestionDriver.java</file>
+            <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/Model/Player.java</file>
+            <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/GUI/ControlPanel.java</file>
+            <file>file:/home/vova/NetBeansProjects/BAPWiFiProtoModerator/src/GUI/GamePanel.java</file>
         </group>
     </open-files>
 </project-private>

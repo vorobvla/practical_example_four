@@ -9,10 +9,14 @@ package Model;
 import edu.cvut.vorobvla.bap.BapJSONKeys;
 import edu.cvut.vorobvla.bap.PlayerStateEnum;
 import edu.cvut.vorobvla.bap.GameStateEnum;
+import static edu.cvut.vorobvla.bap.GameStateEnum.COOSING_QUESTION;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONObject;
@@ -37,9 +41,15 @@ public class Game {
     private HashSet<Player> players;
     private static Player answeringPlayer;
     private static Game instance;
-    private static int maximumAppliing;
+    private static int maximumApplying;
     private static int playersNotAnswered;
+    private AbstractQuestionDriver questionDriver;
+    private static Question currentQuestion;
     boolean paused;
+    private static ScheduledThreadPoolExecutor scheduler;
+    private boolean broadcastInfo;
+    /** scheduled action for question "timer" (ScheduledThreadPoolExecutor)*/
+    private static ScheduledFuture questionFuture;
   //  private Collection players;
 
     public static Game getInstance() {
@@ -55,14 +65,17 @@ public class Game {
         players = new HashSet<>();       
         answeringPlayer = null;
         questionTimeout = Constants.DEFAULT_QUESTION_TOUT;
-        maximumAppliing = Constants.MAXIMUM_TIMES_TO_APPLY;
+        maximumApplying = Constants.MAXIMUM_TIMES_TO_APPLY;
+        questionDriver = new PrimitiveQuestionDriver(6, 10);
         paused = false;
+        reset();
     }
             
     private void startStateRoutine(){
         log("[DB] startStateRoutine @ " + System.currentTimeMillis());
         gameTimestamp = System.currentTimeMillis();
         log("game started at " + (new Date(gameTimestamp).toString()));
+        
         String playing = "Players:  ";
         for (Player player: players){
             playing += player.getIdentity() + ", ";
@@ -75,6 +88,8 @@ public class Game {
         log("[DB] choosingStateRoutine @ " + System.currentTimeMillis());
         
         //choosing question to be implemented here
+        currentQuestion = questionDriver.getQuestion();
+        
         setAllPlayersState(PlayerStateEnum.FALSEACTIVE);
         resetAllPlayersAppliedTimes();
         log("Question is chosen");
@@ -95,20 +110,18 @@ public class Game {
     
     private void awaitingStateRoutine() throws InterruptedException{
         log("[DB] awaitingStateRoutine @ " + System.currentTimeMillis());
-        log("Avaiting for answer");
+        log("Awaiting for answer");
         questionTimestamp = System.currentTimeMillis();
-        //active waiting for answer
-        long time = questionTimeout;
-        synchronized(this){
+        /*synchronized(this){
             while ((state == GameStateEnum.AWAINTING_ANSWER) && (time > 0)){
                 wait(time);
                 time -= (System.currentTimeMillis() - questionTimestamp);
                 log("[DB] Threds work");
             }
         state = GameStateEnum.COOSING_QUESTION;
-        }        
+        }    */    
         //tout
-        //state = GameStateEnum.COOSING_QUESTION;
+        state = GameStateEnum.COOSING_QUESTION;
     }
     
     private void answerStateRoutine(){
@@ -139,10 +152,26 @@ public class Game {
                 getInstance().startStateRoutine();
                 break;
             case COOSING_QUESTION:
+                if (questionFuture != null){
+                    questionFuture.cancel(true);
+                }
                 getInstance().choosingStateRoutine();
                 break;               
             case READING_QUESTION:
                 getInstance().readingStateRoutine();
+                //setup question timer
+                log("[DB] question timer starts @ " 
+                        + System.currentTimeMillis());
+                
+                questionFuture = scheduler.schedule(new Runnable() {
+                    @Override
+                    public void run() {                
+                        log("[DB] timer skip to choosing question @ "
+                                + System.currentTimeMillis());
+                        Game.state = COOSING_QUESTION;
+                        //TODO what if other state
+                    }
+                }, 20000, TimeUnit.MILLISECONDS);
                 break;
             case AWAINTING_ANSWER:
                 getInstance().awaitingStateRoutine();
@@ -181,6 +210,14 @@ public class Game {
         }
     }
     
+    
+    
+
+    static void recieveFasleStart(Player from) {
+        from.chageScoreBy(-currentQuestion.getPrice());
+        from.setState(PlayerStateEnum.PASSIVE);
+    }
+    
     public static void acceptAnswer() throws GameException{
         log("[DB] acceptAnswer @ " + System.currentTimeMillis());
         if (state == GameStateEnum.PROCESSING_ANSWER) {
@@ -188,7 +225,7 @@ public class Game {
             synchronized(getInstance()){
                 getInstance().notify();
             }
-            answeringPlayer.chageScoreBy(10);
+            answeringPlayer.chageScoreBy(currentQuestion.getPrice());
             log("answer acepted (Player score change)");
         } else {
             throw new GameException("Illegal game state");
@@ -204,12 +241,11 @@ public class Game {
             } else {
                 state = GameStateEnum.AWAINTING_ANSWER;
             }
-            answeringPlayer.chageScoreBy(-10);
+            answeringPlayer.chageScoreBy(-currentQuestion.getPrice());
             getInstance().setAcativePlayers();
             synchronized(getInstance()){
                 getInstance().notify();
             }
-            //if (...) {chooseQuestion()}
             log("answer denied (Player score change)");
         } else {
             throw new GameException("Illegal game state");
@@ -234,7 +270,7 @@ public class Game {
     
     private void setAcativePlayers(){
         for (Player player : players) {
-            if (player.getAppliedTimes() < maximumAppliing){
+            if (player.getAppliedTimes() < maximumApplying){
                 player.setState(PlayerStateEnum.ACTIVE);
             }
         }
@@ -279,7 +315,7 @@ public class Game {
     }
 
     public static int getMaximumApplying() {
-        return maximumAppliing;
+        return maximumApplying;
     }
     
     public String printState(){   
@@ -320,13 +356,14 @@ public class Game {
         }
         return s;
     }
-    public static void finishGame() {
+    public void finishGame() {
         state = GameStateEnum.FINISH;
         for (Player player : getInstance().getPlayers()){
                // player.getPeer().sendMsg(BapMessages.MSG_GAME_FIN);
                 player.saveScore();
         }       
-        state = GameStateEnum.FINISHED;
+        scheduler.shutdownNow();
+        //state = GameStateEnum.FINISHED;
     }   
     
     //add info about accept/deny answer when sending to peers!
@@ -347,6 +384,35 @@ public class Game {
         
         return output;
     }
+
+    public Question getCurrentQuestion() {
+        return currentQuestion;
+    }
+
+    public void startBroadcast() {
+        for (Player p : players){
+            p.getPeer().sendOpts(broadcastInfo);
+        }
+        scheduler.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {                
+                Networking.Networking.getInstance().broadcastGameInfo();
+            }
+        }, 200, 200, TimeUnit.MILLISECONDS);
+    }
+
+    public boolean isBroadcastInfo() {
+        return broadcastInfo;
+    }
+
+    public void setBroadcastInfo(boolean broadcastInfo) {
+        this.broadcastInfo = broadcastInfo;
+    }
     
-    
+    public void reset(){        
+        scheduler = new ScheduledThreadPoolExecutor(2);
+        for (Player p : players){
+            p.reset();
+        }
+    }
 }

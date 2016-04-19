@@ -45,6 +45,7 @@ public class GamePanel extends javax.swing.JPanel {
         for (Player p : players) {
             Game.getInstance().addPlayer(p);           
         }
+        Game.getInstance().reset();
         Game.getInstance().startBroadcast();
         gameInfoPanel.setupTable();  
         

@@ -16,6 +16,7 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import edu.cvut.vorobvla.bap.BapMessages;
+import static edu.cvut.vorobvla.bap.BapMessages.*;
 import edu.cvut.vorobvla.bap.GameStateEnum;
 import java.io.Closeable;
 
@@ -146,4 +147,12 @@ public class PlayerPeer implements Runnable, Closeable{
         out.println(BapMessages.MSG_CONNECTION_TERM);
         player.setOnline(false);
     }   
+    
+    public void sendOpts(boolean broadcast){
+        String optBroadcast = OPT_ON;
+        if (broadcast == false){
+            optBroadcast = OPT_OFF;
+        }
+        sendMsg(MSG_OPT_BROADCAST + FIELD_DELIM + optBroadcast);
+    }
 }
