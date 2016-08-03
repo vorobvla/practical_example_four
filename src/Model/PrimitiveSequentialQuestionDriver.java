@@ -19,7 +19,7 @@ package Model;
  */
 
 //primitive implementation of question driver
-public class PrimitiveQuestionDriver extends AbstractQuestionDriver{
+public class PrimitiveSequentialQuestionDriver extends AbstractQuestionDriver{
     /** Number of questions per topic. */
     private final int numberOfQuestions;
     /** Value by which the prices are incremented. */
@@ -37,7 +37,7 @@ public class PrimitiveQuestionDriver extends AbstractQuestionDriver{
      * @param numberOfQuestions number of questions per topic
      * @param priceDifference value by which the prices are incremented 
      */
-    public PrimitiveQuestionDriver(int numberOfQuestions, int priceDifference) {
+    public PrimitiveSequentialQuestionDriver(int numberOfQuestions, int priceDifference) {
 
         this.numberOfQuestions = numberOfQuestions;
         this.priceDifference = priceDifference;
@@ -64,6 +64,7 @@ public class PrimitiveQuestionDriver extends AbstractQuestionDriver{
         incPrice();
         return new Question(currentPrice, "Topic " + currentTopicCnt, null, null, null);
     }
+
     
 
     

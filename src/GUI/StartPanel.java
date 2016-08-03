@@ -7,10 +7,10 @@ package GUI;
 import Model.Player;
 import Networking.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import javax.swing.AbstractListModel;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -37,8 +37,6 @@ public class StartPanel extends javax.swing.JPanel {
     }
 
 
-    
-    
     /**
      * Creates new form StartPanel
      * player refresh.
@@ -56,7 +54,8 @@ public class StartPanel extends javax.swing.JPanel {
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                ((PlayerListModel)playersList.getModel()).update();
+                ((PlayerListModel)playersList.getModel()).update();                
+                startGameButton.setEnabled(!Player.getAll().isEmpty());
             }
         }, 1000, 1000, TimeUnit.MILLISECONDS);   
     }
@@ -112,6 +111,7 @@ public class StartPanel extends javax.swing.JPanel {
         setLayout(layout);
 
         callPlayersButton.setText("Call players");
+        callPlayersButton.setToolTipText("Call the ready players to connect to the system");
         callPlayersButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 callPlayersButtonActionPerformed(evt);
@@ -149,6 +149,8 @@ public class StartPanel extends javax.swing.JPanel {
         add(setupSystemButton, gridBagConstraints);
 
         startGameButton.setText("Start game");
+        startGameButton.setToolTipText("Start game with the connected players");
+        startGameButton.setEnabled(false);
         startGameButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 startGameButtonActionPerformed(evt);
@@ -163,6 +165,11 @@ public class StartPanel extends javax.swing.JPanel {
         add(startGameButton, gridBagConstraints);
 
         setupGameButton.setText("Setup Game");
+        setupGameButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                setupGameButtonActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;
@@ -209,8 +216,12 @@ public class StartPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_startGameButtonActionPerformed
 
     private void callPlayersButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_callPlayersButtonActionPerformed
-        Networking.getInstance().callPlayers();
-        
+        try{
+            Networking.getInstance().callPlayers();   
+        }
+        catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(this.getRootPane(), ex.getMessage());
+        }
     }//GEN-LAST:event_callPlayersButtonActionPerformed
 
     private void setupSystemButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setupSystemButtonActionPerformed
@@ -221,6 +232,10 @@ public class StartPanel extends javax.swing.JPanel {
         playersList.updateUI();
         // TODO add your handling code here:
     }//GEN-LAST:event_playersListMouseClicked
+
+    private void setupGameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setupGameButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_setupGameButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

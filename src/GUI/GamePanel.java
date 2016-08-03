@@ -42,13 +42,12 @@ public class GamePanel extends javax.swing.JPanel {
    }
     
     public void startGame(Collection<Player> players) throws GameException{
+        Game.getInstance().reset();
         for (Player p : players) {
             Game.getInstance().addPlayer(p);           
         }
-        Game.getInstance().reset();
         Game.getInstance().startBroadcast();
-        gameInfoPanel.setupTable();  
-        
+        gameInfoPanel.setupTable();          
     }
     
     private void update(){
@@ -85,7 +84,7 @@ public class GamePanel extends javax.swing.JPanel {
         setLayout(layout);
 
         controlPanel.setMinimumSize(new java.awt.Dimension(350, 100));
-        controlPanel.setPreferredSize(new java.awt.Dimension(300, 150));
+        controlPanel.setPreferredSize(new java.awt.Dimension(300, 400));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -94,8 +93,10 @@ public class GamePanel extends javax.swing.JPanel {
         gridBagConstraints.ipadx = 200;
         gridBagConstraints.ipady = 300;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weighty = 0.1;
         add(controlPanel, gridBagConstraints);
+
+        gameInfoPanel.setMinimumSize(new java.awt.Dimension(200, 100));
+        gameInfoPanel.setPreferredSize(new java.awt.Dimension(200, 250));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -104,7 +105,7 @@ public class GamePanel extends javax.swing.JPanel {
         gridBagConstraints.weightx = 1.0;
         add(gameInfoPanel, gridBagConstraints);
 
-        questionPanel.setMinimumSize(new java.awt.Dimension(100, 400));
+        questionPanel.setMinimumSize(new java.awt.Dimension(100, 100));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -112,6 +113,7 @@ public class GamePanel extends javax.swing.JPanel {
         gridBagConstraints.gridheight = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 10.0;
+        gridBagConstraints.weighty = 1.0;
         add(questionPanel, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 

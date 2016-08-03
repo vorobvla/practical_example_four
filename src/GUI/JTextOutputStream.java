@@ -9,7 +9,6 @@ package GUI;
 import java.io.IOException;
 import java.io.OutputStream;
 import javax.swing.JTextArea;
-import javax.swing.text.JTextComponent;
 
 /**
  * <p> TODO description of JTextOutputStream

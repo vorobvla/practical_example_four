@@ -7,10 +7,6 @@ package GUI;
 
 import Model.Game;
 import Model.Player;
-import edu.cvut.vorobvla.bap.GameStateEnum;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 /**

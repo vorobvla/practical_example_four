@@ -7,11 +7,6 @@ package GUI;
 
 import Networking.Networking;
 import java.awt.Component;
-import java.io.IOException;
-import java.net.BindException;
-import java.net.SocketException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -32,6 +27,8 @@ public class NetworkPanel extends javax.swing.JPanel {
     
     public boolean setup(String ifce, Integer port, Component from) throws RuntimeException{
         if ((ifce == null) || (port == null) ) { 
+            interfaceNameField.setText(ifce);
+            moderatorPortField.setText("");
             return false;
         };
         
@@ -78,19 +75,14 @@ public class NetworkPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        IfceErrLabel = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         interfaceNameField = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         moderatorPortField = new javax.swing.JTextField();
-        PortErrLabel = new javax.swing.JLabel();
         OkButton = new javax.swing.JButton();
         broadcastCheckBox = new javax.swing.JCheckBox();
 
         setBorder(javax.swing.BorderFactory.createTitledBorder("Networking Settings"));
-
-        PortErrLabel.setVisible(false);
-        IfceErrLabel.setText("jLabel2");
 
         jLabel2.setText("Port");
 
@@ -99,9 +91,6 @@ public class NetworkPanel extends javax.swing.JPanel {
         jLabel1.setText("Network Intarface name");
 
         moderatorPortField.setText("");
-
-        PortErrLabel.setText("jLabel2");
-        PortErrLabel.setVisible(false);
 
         OkButton.setText(Constants.BTN_OK);
         OkButton.addActionListener(new java.awt.event.ActionListener() {
@@ -125,13 +114,11 @@ public class NetworkPanel extends javax.swing.JPanel {
                             .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(0, 0, 0)
                             .addComponent(interfaceNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(IfceErrLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(layout.createSequentialGroup()
                             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(0, 0, 0)
                             .addComponent(moderatorPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(broadcastCheckBox)
-                        .addComponent(PortErrLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(broadcastCheckBox)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -143,14 +130,13 @@ public class NetworkPanel extends javax.swing.JPanel {
                         .addGap(5, 5, 5)
                         .addComponent(jLabel1))
                     .addComponent(interfaceNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addComponent(IfceErrLabel)
+                .addGap(17, 17, 17)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(5, 5, 5)
                         .addComponent(jLabel2))
                     .addComponent(moderatorPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addComponent(PortErrLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(29, 29, 29)
                 .addComponent(broadcastCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
                 .addComponent(OkButton)
@@ -165,13 +151,19 @@ public class NetworkPanel extends javax.swing.JPanel {
                 "Network settings changed",
                 JOptionPane.INFORMATION_MESSAGE);
         }
+        update();
+       // System.out.println("ifce " + Networking.getInstance().getNetIntfceName());
     }//GEN-LAST:event_OkButtonActionPerformed
 
+    public void update(){
+        interfaceNameField.setText(Constants.PRINT_OR_NONE(
+                Networking.getInstance().getNetIntfceName()));
+        moderatorPortField.setText(Constants.PRINT_OR_NONE(
+                Networking.getInstance().getModeratorPort()));
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel IfceErrLabel;
     private javax.swing.JButton OkButton;
-    private javax.swing.JLabel PortErrLabel;
     private javax.swing.JCheckBox broadcastCheckBox;
     private javax.swing.JTextField interfaceNameField;
     private javax.swing.JLabel jLabel1;

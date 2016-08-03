@@ -131,6 +131,10 @@ public final class Networking implements Closeable{
                     break;          
                 }
             }
+            
+            if (broadcastAddr == null){
+                throw  new RuntimeException("Failed to setup broadcast Address");
+            }
         } catch (SocketException ex) {
             throw new RuntimeException("Network interface setup failure", ex);
         }
@@ -172,12 +176,18 @@ public final class Networking implements Closeable{
      * @param data the data to be broadcasted.
      */
     private void sendBroadcastUDP(byte[] data){
+        if (broadcastAddr == null){
+            throw new RuntimeException("Broadcast address undefined. "
+                    + "Possably disconected from network.");
+        }
         
         for (int port = BapPorts.PLAYER_PORT; port < BapPorts.PLAYER_PORT + 
                 BapPorts.PLAYER_PORT_RANGE; port++) {
             DatagramPacket sendPacket = 
                     new DatagramPacket(data, data.length, broadcastAddr, port);
             try {
+            //    System.out.println("Sent UDP on " + netIntfce
+           //             + ":" + port);
                 UDPSocket.send(sendPacket);
             } catch (IOException ex) {
                 Logger.getLogger(Networking.class.getName()).log(Level.SEVERE, null, ex);
@@ -251,8 +261,24 @@ public final class Networking implements Closeable{
      */
     public void close() throws IOException {
         //todo kill all peers
-        moderatorServerSocket.close();
-        UDPSocket.close();
+        try {
+            moderatorServerSocket.close();
+            UDPSocket.close();
+        } 
+        catch(NullPointerException ex) {
+            
+        }
     }
+
+    @Override
+    public String toString() {   
+            String db_nw; 
+            String db_addr;
+            db_nw = (netIntfce == null) ? "null" : netIntfce.toString();
+            db_addr = (broadcastAddr == null) ? "null" : broadcastAddr.toString();
+            return "NETWORK:\nIFCE:\t"+db_nw+"\nBroadcast ADDR\t"+db_addr;
+    }
+    
+    
 
 }

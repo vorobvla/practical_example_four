@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BoundedRangeModel;
 import javax.swing.JButton;
 
 /**
@@ -19,12 +20,15 @@ import javax.swing.JButton;
  * @author Vladimir Vorobyev (vorobvla)
  */
 public class ControlPanel extends javax.swing.JPanel {
+    BoundedRangeModel questionTimerModel;    
+    private int timer = ((int)Game.getQuestionTimeout()) / 1000;
 
     /**
      * Creates new form ControlPanel
      */
     public ControlPanel() {
         initComponents(); 
+        
         Game.getInstance().setLog(new JTextOutputStream(logTextArea));
         acceptButton.setEnabled(false);
         denyButton.setEnabled(false);
@@ -103,8 +107,10 @@ public class ControlPanel extends javax.swing.JPanel {
         switch(state){
             case START:
                 tipLabel.setText("Press \"Proceed\" button to start the game.");
+                finishBtn.setText("Finish");
                 break;
             case COOSING_QUESTION:
+                questionTimerField.setText("");
                 tipLabel.setText("Press \"Proceed\" button to obtain next question.");
                 setAnsweringPlayer();
                 enableAnswerProcessing(false);
@@ -116,6 +122,7 @@ public class ControlPanel extends javax.swing.JPanel {
                         + "and announce that.");
                 break;
             case AWAINTING_ANSWER:
+                updateTimer();
                 tipLabel.setText("Wait for player's applying");
                 setAnsweringPlayer();
                 enableAnswerProcessing(false);
@@ -151,6 +158,11 @@ public class ControlPanel extends javax.swing.JPanel {
                     
         }
     }
+    
+    private void updateTimer(){
+        int secs = ((int)Game.getInstance().getQuestionTimeLeft()) / 1000;
+        questionTimerField.setText(secs + "");
+    }
 
     public JButton getFinishBtn() {
         return finishBtn;
@@ -168,6 +180,8 @@ public class ControlPanel extends javax.swing.JPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
+        timeCtrl = new javax.swing.JPanel();
+        questionTimerField = new javax.swing.JLabel();
         tipPanel = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tipLabel = new javax.swing.JTextPane();
@@ -187,6 +201,22 @@ public class ControlPanel extends javax.swing.JPanel {
         setPreferredSize(new java.awt.Dimension(300, 200));
         setLayout(new java.awt.GridBagLayout());
 
+        timeCtrl.setBorder(javax.swing.BorderFactory.createTitledBorder("Timer"));
+        timeCtrl.setPreferredSize(new java.awt.Dimension(70, 50));
+        timeCtrl.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        questionTimerField.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
+        questionTimerField.setForeground(new java.awt.Color(201, 0, 7));
+        questionTimerField.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        questionTimerField.setText("");
+        timeCtrl.add(questionTimerField, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 17, 332, 30));
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        add(timeCtrl, gridBagConstraints);
+
         tipPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Tip"));
         tipPanel.setMinimumSize(new java.awt.Dimension(180, 100));
 
@@ -199,18 +229,19 @@ public class ControlPanel extends javax.swing.JPanel {
         tipPanel.setLayout(tipPanelLayout);
         tipPanelLayout.setHorizontalGroup(
             tipPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 171, Short.MAX_VALUE)
         );
         tipPanelLayout.setVerticalGroup(
             tipPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 329, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 3;
+        gridBagConstraints.gridheight = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
         add(tipPanel, gridBagConstraints);
 
         jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder("Game Log"));
@@ -222,7 +253,7 @@ public class ControlPanel extends javax.swing.JPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipadx = 493;
@@ -235,10 +266,7 @@ public class ControlPanel extends javax.swing.JPanel {
         gameCtrl.setBorder(javax.swing.BorderFactory.createTitledBorder("Game"));
         gameCtrl.setMinimumSize(new java.awt.Dimension(125, 80));
         gameCtrl.setPreferredSize(new java.awt.Dimension(125, 80));
-        java.awt.GridBagLayout gameCtrlLayout = new java.awt.GridBagLayout();
-        gameCtrlLayout.columnWidths = new int[] {0, 6, 0};
-        gameCtrlLayout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0};
-        gameCtrl.setLayout(gameCtrlLayout);
+        gameCtrl.setLayout(new java.awt.GridBagLayout());
 
         finishBtn.setText("Finish");
         finishBtn.setMaximumSize(new java.awt.Dimension(54, 30));
@@ -250,8 +278,8 @@ public class ControlPanel extends javax.swing.JPanel {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gameCtrl.add(finishBtn, gridBagConstraints);
 
@@ -263,31 +291,38 @@ public class ControlPanel extends javax.swing.JPanel {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
         gameCtrl.add(pauseBtn, gridBagConstraints);
 
         proceedButton.setText("Proceed");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 9;
+        gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 2.0;
+        gridBagConstraints.weighty = 2.0;
         gameCtrl.add(proceedButton, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipadx = 99;
         gridBagConstraints.ipady = 36;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.weightx = 1.0;
         add(gameCtrl, gridBagConstraints);
 
         answerCtrl.setBorder(javax.swing.BorderFactory.createTitledBorder("Answer"));
         answerCtrl.setToolTipText("");
         answerCtrl.setMinimumSize(new java.awt.Dimension(130, 116));
-        answerCtrl.setPreferredSize(new java.awt.Dimension(130, 100));
+        answerCtrl.setPreferredSize(new java.awt.Dimension(100, 100));
         answerCtrl.setLayout(new java.awt.GridLayout(3, 1));
         answerCtrl.add(answeringPlayerLabel);
 
@@ -302,8 +337,10 @@ public class ControlPanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipadx = 207;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 2.0;
         add(answerCtrl, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -330,6 +367,8 @@ public class ControlPanel extends javax.swing.JPanel {
     private javax.swing.JTextArea logTextArea;
     private javax.swing.JButton pauseBtn;
     private javax.swing.JButton proceedButton;
+    private javax.swing.JLabel questionTimerField;
+    private javax.swing.JPanel timeCtrl;
     private javax.swing.JTextPane tipLabel;
     private javax.swing.JPanel tipPanel;
     // End of variables declaration//GEN-END:variables

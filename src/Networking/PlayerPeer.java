@@ -17,7 +17,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import edu.cvut.vorobvla.bap.BapMessages;
 import static edu.cvut.vorobvla.bap.BapMessages.*;
-import edu.cvut.vorobvla.bap.GameStateEnum;
 import java.io.Closeable;
 
 

@@ -29,11 +29,11 @@ public class QuestionPanel extends javax.swing.JPanel {
             )
         {            
             Model.Question currQ = Game.getInstance().getCurrentQuestion();
-            QuestionPriceField.setText(Constants.PRINT(currQ.getPrice()));
-            QuestionTopicField.setText(Constants.PRINT(currQ.getTopic()));
-            textArea.setText(Constants.PRINT(currQ.getText()));
-            answerArea.setText(Constants.PRINT(currQ.getAnswer()));
-            notesArea.setText(Constants.PRINT(currQ.getNotes()));
+            QuestionPriceField.setText(Constants.PRINT_OR_NONE(currQ.getPrice()));
+            QuestionTopicField.setText(Constants.PRINT_OR_NONE(currQ.getTopic()));
+            textArea.setText(Constants.PRINT_OR_NONE(currQ.getText()));
+            answerArea.setText(Constants.PRINT_OR_NONE(currQ.getAnswer()));
+            notesArea.setText(Constants.PRINT_OR_NONE(currQ.getNotes()));
         } else {
             QuestionPriceField.setText(Constants.NONE);
             QuestionTopicField.setText(Constants.NONE);

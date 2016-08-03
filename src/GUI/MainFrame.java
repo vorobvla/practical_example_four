@@ -21,7 +21,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -200,7 +199,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     public ScheduledThreadPoolExecutor getScheduler() {
         return scheduler;
-    }
+    }  
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

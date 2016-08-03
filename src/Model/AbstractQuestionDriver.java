@@ -24,4 +24,5 @@ public abstract class AbstractQuestionDriver {
      * that has to be asked at this moment.
      */
     public abstract Question getQuestion();
+
 }

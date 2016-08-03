@@ -9,16 +9,7 @@ package Model;
 import edu.cvut.vorobvla.bap.PlayerStateEnum;
 import Networking.PlayerPeer;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/**
- * <p> Represents player. Contains information about player and a {@see PlayerPeer}
- * object needed to communicate with the corresponding player's application via
- * network.
- * @author Vladimir Vorobyev (vorobvla)
- * @created on Sep 7, 2014 at 12:50:59 PM
- */
 
 
 //represents player
@@ -197,7 +188,7 @@ public class Player {
      */
     public void saveScore() {
         totalScore += currentScore;
-        reset();
+    //    reset();
     }
 
     /**

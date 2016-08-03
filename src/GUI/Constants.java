@@ -33,7 +33,7 @@ public abstract class Constants {
         return "can not intarface with name \"" + s + "\"";
     }
     
-    public static final String PRINT(Object o){
+    public static final String PRINT_OR_NONE(Object o){
         if (o == null){
             return NONE;
         }
